@@ -52,7 +52,7 @@ def get_align_df(p_list, reg_list, activation):
         align_df[r"$p$ Number of Hidden Layers"] = align_df[r"$p$ Number of Hidden Layers"].astype(
             np.int)
         align_df['Alignment'] = align_df['Alignment'].astype(np.double)
-        align_df['Regularization'] = align_df['Regularization'].astype(np.int)
+        align_df['Regularization'] = align_df['Regularization'].astype(int)
         reg_align_df.append(align_df)
     df = pd.concat(reg_align_df)
     return df
