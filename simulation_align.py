@@ -11,14 +11,14 @@ plt.style.use('ggplot')
 # rc('font', **{'family': 'serif', 'serif': ['Latin Modern Roman']})
 rc('text', usetex=True)
 
-n, d = (100, 20)
-step = 10e-6
+n, d = (50, 100)
+step = 10e-7
 n_step = 20000
-n_iter = 10
+n_iter = 2
 activation = 'relu'
-p_start = 200
+p_start = 600
 p_end = 1000
-p_step = 50
+p_step = 100
 p_list = np.arange(start=p_start, stop=p_end + p_step, step=p_step)
 reg_list = [0, 5, 10, 15]
 
