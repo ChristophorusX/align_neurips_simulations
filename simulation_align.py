@@ -13,10 +13,10 @@ rc('text', usetex=True)
 
 n, d = (50, 150)
 step = 10e-7
-n_step = 2000
-n_iter = 20
+n_step = 6000
+n_iter = 10
 activation = 'relu'
-p_start = 500
+p_start = 300
 p_end = 1000
 p_step = 100
 p_list = np.arange(start=p_start, stop=p_end + p_step, step=p_step)
