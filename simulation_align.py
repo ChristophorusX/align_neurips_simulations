@@ -11,16 +11,16 @@ plt.style.use('ggplot')
 # rc('font', **{'family': 'serif', 'serif': ['Latin Modern Roman']})
 rc('text', usetex=True)
 
-n, d = (50, 100)
+n, d = (50, 150)
 step = 10e-7
 n_step = 20000
 n_iter = 2
 activation = 'relu'
-p_start = 900
+p_start = 500
 p_end = 1000
 p_step = 100
 p_list = np.arange(start=p_start, stop=p_end + p_step, step=p_step)
-reg_list = [0, 5, 10]
+reg_list = [0, 5, 10, 15]
 
 
 def get_align_df(p_list, reg_list, activation):
