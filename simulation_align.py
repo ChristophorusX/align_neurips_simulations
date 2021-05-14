@@ -13,7 +13,7 @@ rc('text', usetex=True)
 
 n, d = (50, 150)
 step = 10e-7
-n_step = 20000
+n_step = 2000
 n_iter = 2
 activation = 'relu'
 p_start = 500
