@@ -48,10 +48,10 @@ def get_align_df(p_list, reg_list, activation):
         combined_table = np.vstack(
             (p_index, flattened_table, reg_index, activation_index)).T
         align_df = pd.DataFrame(data=combined_table, columns=[
-                                r"$p$ Hidden Layer Width", 'Alignment', 'Regularization', 'Activation'])
-        align_df[r"$p$ Hidden Layer Width"] = align_df[r"$p$ Number of Hidden Layers"].astype(int)
+                                r"$p$ Hidden Layer Width", 'Alignment', r"Regularization $\lambda$", 'Activation'])
+        align_df[r"$p$ Hidden Layer Width"] = align_df[r"$p$ Hidden Layer Width"].astype(int)
         align_df['Alignment'] = align_df['Alignment'].astype(np.double)
-        align_df['Regularization'] = align_df['Regularization'].astype(int)
+        align_df[r"Regularization $\lambda$"] = align_df[r"Regularization $\lambda$"].astype(int)
         reg_align_df.append(align_df)
     df = pd.concat(reg_align_df)
     return df
