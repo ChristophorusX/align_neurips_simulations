@@ -20,7 +20,7 @@ p_start = 300
 p_end = 1000
 p_step = 100
 p_list = np.arange(start=p_start, stop=p_end + p_step, step=p_step)
-reg_list = [0, 5, 10, 15]
+reg_list = [0, 50, 100]
 
 
 def get_align_df(p_list, reg_list, activation):
