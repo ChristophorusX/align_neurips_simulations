@@ -33,13 +33,13 @@ class TwoLayerNetwork(object):
                 X = torch.FloatTensor(X)
                 self.H = torch.matmul(X, self.W)
                 self.H_activated = self.activation(self.H)
-                self.f = torch.matmul(self.H_activated, self.beta)
+                self.f = torch.matmul(self.H_activated, self.beta) / np.sqrt(self.n)
         else:
             with torch.no_grad():
                 X = torch.FloatTensor(X)
                 self.H = torch.matmul(X, self.W0)
                 self.H_activated = self.activation(self.H)
-                self.f = torch.matmul(self.H_activated, self.beta0)
+                self.f = torch.matmul(self.H_activated, self.beta0) / np.sqrt(self.n)
         return self.f.data.numpy().flatten()
 
     def back_propagation(self, X, y, step, n_steps=10000):
@@ -55,8 +55,9 @@ class TwoLayerNetwork(object):
             with torch.no_grad():
                 self.H = torch.matmul(X, self.W)
                 self.H_activated = self.activation(self.H)
-                self.f = torch.matmul(self.H_activated, self.beta)
-                current_loss = 0.5 * torch.sum((y - self.f)**2)
+                self.f = torch.matmul(
+                    self.H_activated, self.beta) / np.sqrt(self.p)
+                current_loss = 0.5 * torch.sum((y - self.f)**2) / np.sqrt(self.n)
                 loss.append(current_loss)
                 if t % (n_steps / 5) == 0:
                     print("iteration %d: TRAINING loss %f" % (t, current_loss))
@@ -92,21 +93,24 @@ class TwoLayerNetwork(object):
             with torch.no_grad():
                 self.H = torch.matmul(X, self.W)
                 self.H_activated = self.activation(self.H)
-                self.f = torch.matmul(self.H_activated, self.beta)
-                current_loss = 0.5 * torch.sum((y - self.f)**2)
+                self.f = torch.matmul(
+                    self.H_activated, self.beta) / np.sqrt(self.p)
+                current_loss = 0.5 * torch.sum((y - self.f)**2) / np.sqrt(self.n)
                 loss.append(current_loss)
                 if t % (n_steps / 5) == 0:
                     print("iteration %d: TRAINING loss %f" % (t, current_loss))
                 e = self.f - y
                 grad_beta = torch.matmul(
-                    torch.transpose(self.H_activated, 0, 1), e)
+                    torch.transpose(self.H_activated, 0, 1), e) / np.sqrt(self.p)
                 mask = self.act_derivative(self.H)
                 V = torch.matmul(e, self.b.view(1, -1))
                 V_tilde = mask * V
-                grad_W = torch.matmul(torch.transpose(X, 0, 1), V_tilde)
+                grad_W = torch.matmul(torch.transpose(
+                    X, 0, 1), V_tilde) / np.sqrt(self.p)
                 self.W += -step * grad_W
                 self.beta += -step * grad_beta - step * reg * self.beta
         return loss, self.beta.data.numpy().flatten(), self.b.data.numpy().flatten()
+
 
 if __name__ == '__main__':
     seed = np.random.randint(100000)
