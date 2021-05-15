@@ -5,6 +5,47 @@ from torch.autograd import Variable
 from torch.autograd import Function
 
 
+class RegLinearFunction(Function):
+    @staticmethod
+    def forward(ctx, input, weight, regularization):
+        ctx.save_for_backward(input, weight, regularization)
+        output = input.mm(weight.t())
+        return output
+
+    @staticmethod
+    def backward(ctx, grad_output):
+        input, weight, regularization = ctx.saved_tensors
+        grad_input = grad_weight = grad_regularization = None
+
+        if ctx.needs_input_grad[0]:
+            grad_input = grad_output.mm(weight)
+        if ctx.needs_input_grad[1]:
+            grad_weight = grad_output.t().mm(input) + regularization * weight
+
+        return grad_input, grad_weight, grad_regularization
+
+
+reg_linear = RegLinearFunction.apply
+
+
+class RegLinear(nn.Module):
+    def __init__(self, input_features, output_features, regularization=0):
+        super(RegLinear, self).__init__()
+        self.input_features = input_features
+        self.output_features = output_features
+
+        self.weight = nn.Parameter(
+            torch.empty(output_features, input_features))
+        self.regularization = Variable(
+            regularization * torch.ones_like(self.weight), requires_grad=False)
+
+        torch.nn.init.normal_(self.weight)
+
+    def forward(self, input):
+        # See the autograd section for explanation of what happens here.
+        return reg_linear(input, self.weight, self.regularization)
+
+
 class FeedbackAlignmentFunctionReLU(Function):
     @staticmethod
     def forward(ctx, input, weight, backprop_weight):
@@ -16,7 +57,7 @@ class FeedbackAlignmentFunctionReLU(Function):
     @staticmethod
     def backward(ctx, grad_output):
         input, weight, backprop_weight = ctx.saved_variables
-        grad_input = grad_weight = None
+        grad_input = grad_weight = grad_backprop_weight = None
         def act_derivative(x): return torch.relu(torch.sign(x))
         if ctx.needs_input_grad[0]:
             grad_input = (act_derivative(input.mm(weight.t()))
@@ -25,14 +66,14 @@ class FeedbackAlignmentFunctionReLU(Function):
             grad_weight = (act_derivative(input.mm(weight.t())
                                           ).t() * grad_output.t()).mm(input)
 
-        return grad_input, grad_weight
+        return grad_input, grad_weight, grad_backprop_weight
 
 
 fa_function_relu = FeedbackAlignmentFunctionReLU.apply
 
 
 class FeedbackAlignmentReLU(nn.Module):
-    def __init__(self, input_features, output_features, bias=True):
+    def __init__(self, input_features, output_features):
         super(FeedbackAlignmentReLU, self).__init__()
         self.input_features = input_features
         self.output_features = output_features
@@ -61,7 +102,7 @@ class FeedbackAlignmentFunctionSigmoid(Function):
     @staticmethod
     def backward(ctx, grad_output):
         input, weight, backprop_weight = ctx.saved_variables
-        grad_input = grad_weight = None
+        grad_input = grad_weight = grad_backprop_weight = None
         def act_derivative(x): return torch.sigmoid(x)(1 - torch.sigmoid(x))
         if ctx.needs_input_grad[0]:
             grad_input = (act_derivative(input.mm(weight.t()))
@@ -70,14 +111,14 @@ class FeedbackAlignmentFunctionSigmoid(Function):
             grad_weight = (act_derivative(input.mm(weight.t())
                                           ).t() * grad_output.t()).mm(input)
 
-        return grad_input, grad_weight
+        return grad_input, grad_weight, grad_backprop_weight
 
 
 fa_function_sigmoid = FeedbackAlignmentFunctionSigmoid.apply
 
 
 class FeedbackAlignmentSigmoid(nn.Module):
-    def __init__(self, input_features, output_features, bias=True):
+    def __init__(self, input_features, output_features):
         super(FeedbackAlignmentSigmoid, self).__init__()
         self.input_features = input_features
         self.output_features = output_features
@@ -106,7 +147,7 @@ class FeedbackAlignmentFunctionLinear(Function):
     @staticmethod
     def backward(ctx, grad_output):
         input, weight, backprop_weight = ctx.saved_variables
-        grad_input = grad_weight = None
+        grad_input = grad_weight = grad_backprop_weight = None
         def act_derivative(x): return torch.ones_like(x)
         if ctx.needs_input_grad[0]:
             grad_input = (act_derivative(input.mm(weight.t()))
@@ -115,14 +156,14 @@ class FeedbackAlignmentFunctionLinear(Function):
             grad_weight = (act_derivative(input.mm(weight.t())
                                           ).t() * grad_output.t()).mm(input)
 
-        return grad_input, grad_weight
+        return grad_input, grad_weight, grad_backprop_weight
 
 
 fa_function_linear = FeedbackAlignmentFunctionLinear.apply
 
 
 class FeedbackAlignmentLinear(nn.Module):
-    def __init__(self, input_features, output_features, bias=True):
+    def __init__(self, input_features, output_features):
         super(FeedbackAlignmentLinear, self).__init__()
         self.input_features = input_features
         self.output_features = output_features

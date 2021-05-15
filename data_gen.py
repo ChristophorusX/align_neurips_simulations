@@ -1,5 +1,5 @@
 import numpy as np
-import fa
+import fa_two_layer
 
 
 def lr_data(n_samples, n_dim):
@@ -10,7 +10,7 @@ def lr_data(n_samples, n_dim):
 
 def rand_nn_data(n_samples, n_dim, n_hidden, activation='relu'):
     seed = np.random.randint(100000)
-    net = fa.TwoLayerNetwork(activation, n_dim, n_hidden, n_samples, seed)
+    net = fa_two_layer.TwoLayerNetwork(activation, n_dim, n_hidden, n_samples, seed)
     X = np.random.randn(n_samples, n_dim)
     y = net.forward(X)
     return X, y

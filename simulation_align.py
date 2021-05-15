@@ -1,4 +1,4 @@
-import fa
+import fa_two_layer
 import data_gen
 import numpy as np
 import pandas as pd
@@ -24,7 +24,7 @@ def get_align_df(n, d, p_list, reg_list, activation, synthetic_data, step, n_ste
                 elif synthetic_data == 'nn':
                     X, y = data_gen.rand_nn_data(n, d, p)
                 seed = np.random.randint(100000)
-                net = fa.TwoLayerNetwork(activation, d, p, n, seed)
+                net = fa_two_layer.TwoLayerNetwork(activation, d, p, n, seed)
                 loss_fa, beta, b = net.feedback_alignment(
                     X, y, step, regular=reg, n_steps=n_step)
                 align = np.inner(beta, b) / \
