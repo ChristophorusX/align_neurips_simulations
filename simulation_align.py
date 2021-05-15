@@ -86,6 +86,6 @@ p_start = 300
 p_end = 1000
 p_step = 50
 p_list = np.arange(start=p_start, stop=p_end + p_step, step=p_step)
-reg_list = [0, 500, 1000]
+reg_list = [0, 5000, 10000]
 df_lr = get_align_df(n, d, p_list, reg_list, 'non', 'lr', step, n_step, n_iter)
 plot_lr(df_lr)
