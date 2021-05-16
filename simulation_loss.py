@@ -1,10 +1,9 @@
 import fa_two_layer
 import data_gen
+import net_autograd
 import numpy as np
 import torch
 from torch import nn
-import torch.nn.functional as F
-import fa_autograd
 import matplotlib.pyplot as plt
 from matplotlib import rc
 plt.style.use('ggplot')
@@ -33,42 +32,8 @@ plt.plot(np.arange(n_step)[:10000], loss_bp[:10000], np.arange(n_step)[
          :10000], loss_fa1[:10000], np.arange(n_step)[:10000], loss_fa10[:10000])
 
 
-class TwoLayerFeedbackAlignmentNetworkReLU(nn.Module):
-    def __init__(self, input_features, hidden_features):
-        super(TwoLayerFeedbackAlignmentNetworkReLU, self).__init__()
-        self.input_features = input_features
-        self.hidden_features = hidden_features
-
-        self.first_layer = fa_autograd.FeedbackAlignmentReLU(
-            self.input_features, self.hidden_features)
-        self.second_layer = fa_autograd.RegLinear(self.hidden_features, 1)
-
-    def forward(self, X):
-        X = torch.FloatTensor(X)
-        hidden = self.first_layer(X)
-        prediction = self.second_layer(hidden) / np.sqrt(self.hidden_features)
-        return prediction
-
-
-class TwoLayerBackPropNetworkReLU(nn.Module):
-    def __init__(self, input_features, hidden_features):
-        super(TwoLayerBackPropNetworkReLU, self).__init__()
-        self.input_features = input_features
-        self.hidden_features = hidden_features
-
-        self.first_layer = nn.Linear(input_features, hidden_features, bias=False)
-        self.second_layer = nn.Linear(hidden_features, 1, bias=False)
-        nn.init.normal_(self.first_layer.weight)
-        nn.init.normal_(self.second_layer.weight)
-
-    def forward(self, X):
-        X = torch.FloatTensor(X)
-        hidden = F.relu(self.first_layer(X))
-        prediction = self.second_layer(hidden) / np.sqrt(self.hidden_features)
-        return prediction
-
 learning_rate = 10e-6
-torch_net_fa = TwoLayerFeedbackAlignmentNetworkReLU(d, p)
+torch_net_fa = net_autograd.TwoLayerFeedbackAlignmentNetworkReLU(d, p)
 optimizer_fa = torch.optim.SGD(torch_net_fa.parameters(), lr=learning_rate)
 loss_fn_fa = nn.MSELoss()
 y_torch = torch.FloatTensor(y).unsqueeze(1)
@@ -86,7 +51,7 @@ for t in range(n_step):
 plt.plot(np.arange(n_step)[:10000], loss_fa_autograd[:10000])
 
 
-torch_net_bp = TwoLayerBackPropNetworkReLU(d, p)
+torch_net_bp = net_autograd.TwoLayerBackPropNetworkReLU(d, p)
 optimizer_bp = torch.optim.SGD(torch_net_bp.parameters(), lr=learning_rate)
 loss_fn_bp = nn.MSELoss()
 y_torch = torch.FloatTensor(y).unsqueeze(1)

@@ -7,22 +7,22 @@ from torch.autograd import Function
 
 class RegLinearFunction(Function):
     @staticmethod
-    def forward(ctx, input, weight, regularization):
-        ctx.save_for_backward(input, weight, regularization)
+    def forward(ctx, input, weight, backprop_weight, regularization):
+        ctx.save_for_backward(input, weight, backprop_weight, regularization)
         output = input.mm(weight.t())
         return output
 
     @staticmethod
     def backward(ctx, grad_output):
-        input, weight, regularization = ctx.saved_tensors
-        grad_input = grad_weight = grad_regularization = None
+        input, weight, backprop_weight, regularization = ctx.saved_tensors
+        grad_input = grad_weight = grad_backprop_weight = grad_regularization = None
 
         if ctx.needs_input_grad[0]:
-            grad_input = grad_output.mm(weight)
+            grad_input = grad_output.mm(backprop_weight)
         if ctx.needs_input_grad[1]:
             grad_weight = grad_output.t().mm(input) + regularization * weight
 
-        return grad_input, grad_weight, grad_regularization
+        return grad_input, grad_weight, grad_backprop_weight, grad_regularization
 
 
 reg_linear = RegLinearFunction.apply
@@ -36,14 +36,17 @@ class RegLinear(nn.Module):
 
         self.weight = nn.Parameter(
             torch.empty(output_features, input_features))
+        self.backprop_weight = nn.Parameter(Variable(torch.FloatTensor(
+            output_features, input_features), requires_grad=False))
         self.regularization = Variable(
             regularization * torch.ones_like(self.weight), requires_grad=False)
 
         torch.nn.init.normal_(self.weight)
+        torch.nn.init.normal_(self.backprop_weight)
 
     def forward(self, input):
         # See the autograd section for explanation of what happens here.
-        return reg_linear(input, self.weight, self.regularization)
+        return reg_linear(input, self.weight, self.backprop_weight, self.regularization)
 
 
 class FeedbackAlignmentFunctionReLU(Function):
@@ -80,8 +83,8 @@ class FeedbackAlignmentReLU(nn.Module):
 
         self.weight = nn.Parameter(
             torch.Tensor(output_features, input_features))
-        self.backprop_weight = Variable(torch.FloatTensor(
-            output_features, input_features), requires_grad=False)
+        self.backprop_weight = nn.Parameter(Variable(torch.FloatTensor(
+            output_features, input_features), requires_grad=False))
 
         # weight initialization
         torch.nn.init.normal_(self.weight)
