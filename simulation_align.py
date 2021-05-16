@@ -138,19 +138,19 @@ def plot_lr(df_lr):
     align_lr_fig.savefig('align_lr_fig.pdf')
 
 
-# Generate alignment plot for relu network and nn data
-n, d = (50, 150)
-step = 10e-6
-n_step = 6000
-n_iter = 20
-p_start = 300
-p_end = 1000
-p_step = 25
-p_list = np.arange(start=p_start, stop=p_end + p_step, step=p_step)
-reg_list = [0, 10, 20]
-df_relu = get_align_df(n, d, p_list, reg_list, 'relu',
-                      'nn', step, n_step, n_iter)
-plot_relu(df_relu)
+#  # Generate alignment plot for relu network and nn data
+#  n, d = (50, 150)
+#  step = 10e-6
+#  n_step = 6000
+#  n_iter = 20
+#  p_start = 300
+#  p_end = 1000
+#  p_step = 25
+#  p_list = np.arange(start=p_start, stop=p_end + p_step, step=p_step)
+#  reg_list = [0, 10, 20]
+#  df_relu = get_align_df(n, d, p_list, reg_list, 'relu',
+#                        'nn', step, n_step, n_iter)
+#  plot_relu(df_relu)
 
 #  # Generate alignment plot for linear network and lr data
 #  n, d = (50, 150)
