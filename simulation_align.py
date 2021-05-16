@@ -133,8 +133,8 @@ def plot_lr(df_lr):
 
 # Generate alignment plot for relu network and nn data
 n, d = (50, 150)
-step = 10e-7
-n_step = 10000
+step = 10e-6
+n_step = 6000
 n_iter = 20
 p_start = 300
 p_end = 1000
