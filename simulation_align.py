@@ -52,6 +52,7 @@ def get_align_df(n, d, p_list, reg_list, activation, synthetic_data, step, n_ste
     df = pd.concat(reg_align_df)
     return df
 
+
 n, d, p = (50, 10, 1000)
 # X, y = data_gen.lr_data(n, d)
 X, y = data_gen.rand_nn_data(n, d, p)
@@ -71,8 +72,10 @@ def get_autograd_align_df(n, d, p_list, reg_list, activation, synthetic_data, st
                 elif synthetic_data == 'nn':
                     X, y = data_gen.rand_nn_data(n, d, p)
                 if activation == 'relu':
-                    torch_net_fa = net_autograd.TwoLayerFeedbackAlignmentNetworkReLU(d, p)
-                optimizer_fa = torch.optim.SGD(torch_net_fa.parameters(), lr=step)
+                    torch_net_fa = net_autograd.TwoLayerFeedbackAlignmentNetworkReLU(
+                        d, p)
+                optimizer_fa = torch.optim.SGD(
+                    torch_net_fa.parameters(), lr=step)
                 loss_fn_fa = nn.MSELoss()
                 y_torch = torch.FloatTensor(y).unsqueeze(1)
                 for t in range(n_step):
@@ -88,7 +91,9 @@ def get_autograd_align_df(n, d, p_list, reg_list, activation, synthetic_data, st
                         backprop_weight = param.data
                     if name == 'second_layer.weight':
                         second_layer_weight = param.data
-                align = torch.inner(backprop_weight, second_layer_weight) / torch.norm(backprop_weight) / torch.norm(second_layer_weight)
+                align = torch.inner(backprop_weight, second_layer_weight) / \
+                    torch.norm(backprop_weight) / \
+                    torch.norm(second_layer_weight)
                 align = align.data.detach().numpy().flatten()
                 print(align)
                 align_array.append(align)
@@ -118,11 +123,13 @@ def plot_relu(df_relu):
     align_relu_fig = align_relu_plot.get_figure()
     align_relu_fig.savefig('align_relu_fig.pdf')
 
+
 def plot_autograd_relu(df_relu):
     align_relu_plot = sns.lineplot(x=r"$p$ Hidden Layer Width", y='Alignment',
                                    hue=r"Regularization $\lambda$", data=df_relu, legend="full")
     align_relu_fig = align_relu_plot.get_figure()
     align_relu_fig.savefig('align_autograd_relu_fig.pdf')
+
 
 def plot_lr(df_lr):
     align_relu_plot = sns.lineplot(x=r"$p$ Hidden Layer Width", y='Alignment',
@@ -131,31 +138,32 @@ def plot_lr(df_lr):
     align_relu_fig.savefig('align_lr_fig.pdf')
 
 
-# Generate alignment plot for relu network and nn data
-n, d = (50, 150)
-step = 10e-6
-n_step = 6000
-n_iter = 20
-p_start = 300
-p_end = 1000
-p_step = 25
-p_list = np.arange(start=p_start, stop=p_end + p_step, step=p_step)
-reg_list = [0, 20, 50]
-df_relu = get_align_df(n, d, p_list, reg_list, 'relu', 'nn', step, n_step, n_iter)
-plot_relu(df_relu)
-
-# # Generate alignment plot for linear network and lr data
+# # Generate alignment plot for relu network and nn data
 # n, d = (50, 150)
-# step = 10e-7
-# n_step = 1000
+# step = 10e-6
+# n_step = 6000
 # n_iter = 20
 # p_start = 300
 # p_end = 1000
-# p_step = 50
+# p_step = 25
 # p_list = np.arange(start=p_start, stop=p_end + p_step, step=p_step)
-# reg_list = [0, 5000, 10000]
-# df_lr = get_align_df(n, d, p_list, reg_list, 'non', 'lr', step, n_step, n_iter)
-# plot_lr(df_lr)
+# reg_list = [0, 20, 50]
+# df_relu = get_align_df(n, d, p_list, reg_list, 'relu',
+#                        'nn', step, n_step, n_iter)
+# plot_relu(df_relu)
+
+# Generate alignment plot for linear network and lr data
+n, d = (50, 150)
+step = 10e-6
+n_step = 1000
+n_iter = 2
+p_start = 500
+p_end = 600
+p_step = 100
+p_list = np.arange(start=p_start, stop=p_end + p_step, step=p_step)
+reg_list = [0, 5, 10]
+df_lr = get_align_df(n, d, p_list, reg_list, 'non', 'lr', step, n_step, n_iter)
+plot_lr(df_lr)
 
 
 # # Generate alignment plot for autograd relu network and nn data
