@@ -116,8 +116,13 @@ def plot_relu(df_relu):
     align_relu_plot = sns.lineplot(x=r"$p$ Hidden Layer Width", y='Alignment',
                                    hue=r"Regularization $\lambda$", data=df_relu, legend="full")
     align_relu_fig = align_relu_plot.get_figure()
-    align_relu_fig.savefig('align_autograd_relu_fig.pdf')
+    align_relu_fig.savefig('align_relu_fig.pdf')
 
+def plot_autograd_relu(df_relu):
+    align_relu_plot = sns.lineplot(x=r"$p$ Hidden Layer Width", y='Alignment',
+                                   hue=r"Regularization $\lambda$", data=df_relu, legend="full")
+    align_relu_fig = align_relu_plot.get_figure()
+    align_relu_fig.savefig('align_auto_grad_relu_fig.pdf')
 
 def plot_lr(df_lr):
     align_relu_plot = sns.lineplot(x=r"$p$ Hidden Layer Width", y='Alignment',
@@ -126,31 +131,31 @@ def plot_lr(df_lr):
     align_relu_fig.savefig('align_lr_fig.pdf')
 
 
-# # Generate alignment plot for relu network and nn data
-# n, d = (50, 150)
-# step = 10e-7
-# n_step = 6000
-# n_iter = 20
-# p_start = 300
-# p_end = 1000
-# p_step = 50
-# p_list = np.arange(start=p_start, stop=p_end + p_step, step=p_step)
-# reg_list = [0, 50, 100]
-# df_relu = get_align_df(n, d, p_list, reg_list, 'relu', 'nn', step, n_step, n_iter)
-# plot_relu(df_relu)
+# Generate alignment plot for relu network and nn data
+n, d = (50, 150)
+step = 10e-7
+n_step = 6000
+n_iter = 20
+p_start = 300
+p_end = 1000
+p_step = 50
+p_list = np.arange(start=p_start, stop=p_end + p_step, step=p_step)
+reg_list = [0, 50, 100]
+df_relu = get_align_df(n, d, p_list, reg_list, 'relu', 'nn', step, n_step, n_iter)
+plot_relu(df_relu)
 
-# # Generate alignment plot for linear network and lr data
-# n, d = (50, 150)
-# step = 10e-7
-# n_step = 1000
-# n_iter = 20
-# p_start = 300
-# p_end = 1000
-# p_step = 50
-# p_list = np.arange(start=p_start, stop=p_end + p_step, step=p_step)
-# reg_list = [0, 5000, 10000]
-# df_lr = get_align_df(n, d, p_list, reg_list, 'non', 'lr', step, n_step, n_iter)
-# plot_lr(df_lr)
+# Generate alignment plot for linear network and lr data
+n, d = (50, 150)
+step = 10e-7
+n_step = 1000
+n_iter = 20
+p_start = 300
+p_end = 1000
+p_step = 50
+p_list = np.arange(start=p_start, stop=p_end + p_step, step=p_step)
+reg_list = [0, 5000, 10000]
+df_lr = get_align_df(n, d, p_list, reg_list, 'non', 'lr', step, n_step, n_iter)
+plot_lr(df_lr)
 
 
 # Generate alignment plot for autograd relu network and nn data
@@ -162,6 +167,6 @@ p_start = 300
 p_end = 1000
 p_step = 100
 p_list = np.arange(start=p_start, stop=p_end + p_step, step=p_step)
-reg_list = [0, 1000]
+reg_list = [0, 10000]
 df_relu = get_autograd_align_df(n, d, p_list, reg_list, 'relu', 'nn', step, n_step, n_iter)
-plot_relu(df_relu)
+plot_autograd_relu(df_relu)
