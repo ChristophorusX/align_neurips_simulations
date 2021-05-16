@@ -122,7 +122,7 @@ def plot_autograd_relu(df_relu):
     align_relu_plot = sns.lineplot(x=r"$p$ Hidden Layer Width", y='Alignment',
                                    hue=r"Regularization $\lambda$", data=df_relu, legend="full")
     align_relu_fig = align_relu_plot.get_figure()
-    align_relu_fig.savefig('align_auto_grad_relu_fig.pdf')
+    align_relu_fig.savefig('align_autograd_relu_fig.pdf')
 
 def plot_lr(df_lr):
     align_relu_plot = sns.lineplot(x=r"$p$ Hidden Layer Width", y='Alignment',
