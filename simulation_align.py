@@ -154,7 +154,7 @@ def plot_lr(df_lr):
 
 # Generate alignment plot for linear network and lr data
 n, d = (50, 150)
-step = 10e-6
+step = 10e-5
 n_step = 10000
 n_iter = 2
 p_start = 500
