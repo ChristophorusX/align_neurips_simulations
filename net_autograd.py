@@ -6,14 +6,15 @@ import fa_autograd
 
 
 class TwoLayerFeedbackAlignmentNetworkReLU(nn.Module):
-    def __init__(self, input_features, hidden_features):
+    def __init__(self, input_features, hidden_features, regularization):
         super(TwoLayerFeedbackAlignmentNetworkReLU, self).__init__()
         self.input_features = input_features
         self.hidden_features = hidden_features
 
         self.first_layer = fa_autograd.FeedbackAlignmentReLU(
             self.input_features, self.hidden_features)
-        self.second_layer = fa_autograd.RegLinear(self.hidden_features, 1)
+        self.second_layer = fa_autograd.RegLinear(
+            self.hidden_features, 1, regularization)
 
     def forward(self, X):
         X = torch.FloatTensor(X)
