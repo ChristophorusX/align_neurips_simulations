@@ -93,7 +93,6 @@ def get_autograd_align_df(n, d, p_list, reg_list, activation, synthetic_data, st
                 print(align)
                 align_array.append(align)
             align_table.append(align_array)
-            print(align_table)
         align_table = np.array(align_table)
         flattened_table = align_table.flatten()
         p_index = np.repeat(p_list, n_iter)
@@ -155,8 +154,8 @@ def plot_lr(df_lr):
 
 
 # Generate alignment plot for autograd relu network and nn data
-n, d = (50, 150)
-step = 10e-6
+n, d = (50, 100)
+step = 10e-4
 n_step = 10000
 n_iter = 2
 p_start = 300
