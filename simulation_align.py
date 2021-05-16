@@ -163,6 +163,6 @@ p_start = 300
 p_end = 1000
 p_step = 50
 p_list = np.arange(start=p_start, stop=p_end + p_step, step=p_step)
-reg_list = [0, 50, 100]
+reg_list = [0, 500, 1000]
 df_relu = get_autograd_align_df(n, d, p_list, reg_list, 'relu', 'nn', step, n_step, n_iter)
 plot_relu(df_relu)
