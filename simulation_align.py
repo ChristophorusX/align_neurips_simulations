@@ -156,13 +156,13 @@ def plot_lr(df_lr):
 
 # Generate alignment plot for autograd relu network and nn data
 n, d = (50, 150)
-step = 10e-5
+step = 10e-6
 n_step = 10000
-n_iter = 20
+n_iter = 2
 p_start = 300
 p_end = 1000
-p_step = 50
+p_step = 100
 p_list = np.arange(start=p_start, stop=p_end + p_step, step=p_step)
-reg_list = [0, 500, 1000]
+reg_list = [0, 1000]
 df_relu = get_autograd_align_df(n, d, p_list, reg_list, 'relu', 'nn', step, n_step, n_iter)
 plot_relu(df_relu)
