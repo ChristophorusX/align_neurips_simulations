@@ -122,7 +122,6 @@ def plot_relu(df_relu):
                                    hue=r"Regularization $\lambda$", data=df_relu, legend="full")
     align_relu_fig = align_relu_plot.get_figure()
     align_relu_fig.savefig('align_relu_fig.pdf')
-    align_relu_fig.close()
 
 
 def plot_autograd_relu(df_relu):
@@ -130,7 +129,6 @@ def plot_autograd_relu(df_relu):
                                    hue=r"Regularization $\lambda$", data=df_relu, legend="full")
     align_relu_fig = align_relu_plot.get_figure()
     align_relu_fig.savefig('align_autograd_relu_fig.pdf')
-    align_relu_fig.close()
 
 
 def plot_lr(df_lr):
@@ -154,29 +152,29 @@ def plot_lr(df_lr):
 #                        'nn', step, n_step, n_iter)
 # plot_relu(df_relu)
 
-# Generate alignment plot for linear network and lr data
-n, d = (50, 150)
-step = 10e-5
+#  # Generate alignment plot for linear network and lr data
+#  n, d = (50, 150)
+#  step = 10e-5
+#  n_step = 2000
+#  n_iter = 10
+#  p_start = 300
+#  p_end = 1000
+#  p_step = 25
+#  p_list = np.arange(start=p_start, stop=p_end + p_step, step=p_step)
+#  reg_list = [0, 5, 10]
+#  df_lr = get_align_df(n, d, p_list, reg_list, 'non', 'lr', step, n_step, n_iter)
+#  plot_lr(df_lr)
+
+
+# Generate alignment plot for autograd relu network and nn data
+n, d = (50, 100)
+step = 10e-4
 n_step = 2000
-n_iter = 10
-p_start = 300
-p_end = 1000
-p_step = 25
+n_iter = 2
+p_start = 500
+p_end = 600
+p_step = 100
 p_list = np.arange(start=p_start, stop=p_end + p_step, step=p_step)
-reg_list = [0, 5, 10]
-df_lr = get_align_df(n, d, p_list, reg_list, 'non', 'lr', step, n_step, n_iter)
-plot_lr(df_lr)
-
-
-# # Generate alignment plot for autograd relu network and nn data
-# n, d = (50, 100)
-# step = 10e-4
-# n_step = 10000
-# n_iter = 2
-# p_start = 300
-# p_end = 1000
-# p_step = 100
-# p_list = np.arange(start=p_start, stop=p_end + p_step, step=p_step)
-# reg_list = [0, 10000]
-# df_relu = get_autograd_align_df(n, d, p_list, reg_list, 'relu', 'nn', step, n_step, n_iter)
-# plot_autograd_relu(df_relu)
+reg_list = [0, 100]
+df_relu = get_autograd_align_df(n, d, p_list, reg_list, 'relu', 'nn', step, n_step, n_iter)
+plot_autograd_relu(df_relu)
