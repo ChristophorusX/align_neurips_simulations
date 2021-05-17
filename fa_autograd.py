@@ -38,8 +38,8 @@ class RegLinear(nn.Module):
             torch.empty(output_features, input_features))
         self.backprop_weight = nn.Parameter(Variable(torch.FloatTensor(
             output_features, input_features), requires_grad=False))
-        self.regularization = Variable(
-            regularization * torch.ones_like(self.weight), requires_grad=False)
+        self.regularization = nn.Parameter(Variable(
+            regularization * torch.ones_like(self.weight), requires_grad=False))
 
         torch.nn.init.normal_(self.weight)
         torch.nn.init.normal_(self.backprop_weight)
