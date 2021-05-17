@@ -82,8 +82,8 @@ def get_autograd_align_df(n, d, p_list, reg_list, activation, synthetic_data, st
                 loss_fn_fa = nn.MSELoss()
                 y_torch = torch.FloatTensor(y).unsqueeze(1).to(device)
                 for t in range(n_step):
-                    X = torch.FloatTensor(X).to(device)
-                    pred = torch_net_fa.forward(X)
+                    X_torch = torch.FloatTensor(X).to(device)
+                    pred = torch_net_fa.forward(X_torch)
                     loss = loss_fn_fa(pred, y_torch)
                     if t % (n_step / 5) == n_step / 5 - 1:
                         print(t, loss.item())
