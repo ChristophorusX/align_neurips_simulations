@@ -73,8 +73,6 @@ def get_autograd_align_df(n, d, p_list, reg_list, activation, synthetic_data, st
                     X, y = data_gen.lr_data(n, d)
                 elif synthetic_data == 'nn':
                     X, y = data_gen.rand_nn_data(n, d, p)
-                X = X.to(device)
-                y = y.to(device)
                 if activation == 'relu':
                     torch_net_fa = net_autograd.TwoLayerFeedbackAlignmentNetworkReLU(
                         d, p, reg)
@@ -82,8 +80,9 @@ def get_autograd_align_df(n, d, p_list, reg_list, activation, synthetic_data, st
                 optimizer_fa = torch.optim.SGD(
                     torch_net_fa.parameters(), lr=step)
                 loss_fn_fa = nn.MSELoss()
-                y_torch = torch.FloatTensor(y).unsqueeze(1)
+                y_torch = torch.FloatTensor(y).unsqueeze(1).to(device)
                 for t in range(n_step):
+                    X = torch.FloatTensor(X).to(device)
                     pred = torch_net_fa.forward(X)
                     loss = loss_fn_fa(pred, y_torch)
                     if t % (n_step / 5) == n_step / 5 - 1:
