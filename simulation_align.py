@@ -13,6 +13,8 @@ plt.style.use('ggplot')
 # plt.rcParams["figure.figsize"] = (9, 9)
 # rc('font', **{'family': 'serif', 'serif': ['Latin Modern Roman']})
 rc('text', usetex=True)
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+print(device)
 
 
 def get_align_df(n, d, p_list, reg_list, activation, synthetic_data, step, n_step, n_iter):
@@ -71,9 +73,12 @@ def get_autograd_align_df(n, d, p_list, reg_list, activation, synthetic_data, st
                     X, y = data_gen.lr_data(n, d)
                 elif synthetic_data == 'nn':
                     X, y = data_gen.rand_nn_data(n, d, p)
+                X = X.to(device)
+                y = y.to(device)
                 if activation == 'relu':
                     torch_net_fa = net_autograd.TwoLayerFeedbackAlignmentNetworkReLU(
                         d, p, reg)
+                    net_autograd.to(device)
                 optimizer_fa = torch.optim.SGD(
                     torch_net_fa.parameters(), lr=step)
                 loss_fn_fa = nn.MSELoss()
