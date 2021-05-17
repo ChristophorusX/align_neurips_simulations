@@ -98,7 +98,7 @@ def get_autograd_align_df(n, d, p_list, reg_list, activation, synthetic_data, st
                 align = torch.tensordot(backprop_weight, second_layer_weight) / \
                     torch.norm(backprop_weight) / \
                     torch.norm(second_layer_weight)
-                align = align.data.detach().numpy().flatten()
+                align = align.cpu().data.detach().numpy().flatten()
                 print(align)
                 align_array.append(align)
             align_table.append(align_array)
