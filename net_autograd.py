@@ -17,7 +17,6 @@ class TwoLayerFeedbackAlignmentNetworkReLU(nn.Module):
             self.hidden_features, 1, regularization)
 
     def forward(self, X):
-        X = torch.FloatTensor(X)
         hidden = self.first_layer(X)
         prediction = self.second_layer(hidden) / np.sqrt(self.hidden_features)
         return prediction
@@ -36,7 +35,6 @@ class TwoLayerBackPropNetworkReLU(nn.Module):
         nn.init.normal_(self.second_layer.weight)
 
     def forward(self, X):
-        X = torch.FloatTensor(X)
         hidden = F.relu(self.first_layer(X))
         prediction = self.second_layer(hidden) / np.sqrt(self.hidden_features)
         return prediction

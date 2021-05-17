@@ -58,6 +58,7 @@ y_torch = torch.FloatTensor(y).unsqueeze(1)
 y_torch.size()
 loss_bp_autograd = []
 for t in range(n_step):
+    X = torch.FloatTensor(X)
     pred = torch_net_bp.forward(X)
     loss = loss_fn_bp(pred, y_torch)
     loss_bp_autograd.append(loss.item())
