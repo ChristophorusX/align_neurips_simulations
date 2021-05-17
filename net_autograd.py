@@ -38,3 +38,22 @@ class TwoLayerBackPropNetworkReLU(nn.Module):
         hidden = F.relu(self.first_layer(X))
         prediction = self.second_layer(hidden) / np.sqrt(self.hidden_features)
         return prediction
+
+
+class TwoLayerFeedbackAlignmentDropoutNetworkReLU(nn.Module):
+    def __init__(self, input_features, hidden_features, dropout_prob):
+        super(TwoLayerFeedbackAlignmentDropoutNetworkReLU, self).__init__()
+        self.input_features = input_features
+        self.hidden_features = hidden_features
+
+        self.first_layer = fa_autograd.FeedbackAlignmentReLU(
+            self.input_features, self.hidden_features)
+        self.drop = nn.Dropout(dropout_prob)
+        self.second_layer = fa_autograd.RegLinear(
+            self.hidden_features, 1, 0)
+
+    def forward(self, X):
+        hidden = self.first_layer(X)
+        hidden_dropped = self.drop(hidden)
+        prediction = self.second_layer(hidden_dropped) / np.sqrt(self.hidden_features)
+        return prediction
