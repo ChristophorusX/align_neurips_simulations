@@ -95,7 +95,7 @@ def get_autograd_align_df(n, d, p_list, reg_list, activation, synthetic_data, st
                         backprop_weight = param.data
                     if name == 'second_layer.weight':
                         second_layer_weight = param.data
-                align = torch.inner(backprop_weight, second_layer_weight) / \
+                align = torch.dot(backprop_weight, second_layer_weight) / \
                     torch.norm(backprop_weight) / \
                     torch.norm(second_layer_weight)
                 align = align.data.detach().numpy().flatten()
