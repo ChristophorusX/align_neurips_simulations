@@ -76,7 +76,9 @@ def get_autograd_align_df(n, d, p_list, reg_list, activation, synthetic_data, st
                 if activation == 'relu':
                     torch_net_fa = net_autograd.TwoLayerFeedbackAlignmentNetworkReLU(
                         d, p, reg)
-                    torch_net_fa.to(device)
+                elif activation == 'non':
+                    torch_net_fa = net_autograd.TwoLayerFeedbackAlignmentNetworkLinear(d, p, reg)
+                torch_net_fa.to(device)
                 optimizer_fa = torch.optim.SGD(
                     torch_net_fa.parameters(), lr=step)
                 loss_fn_fa = nn.MSELoss()
@@ -142,6 +144,13 @@ def plot_lr(df_lr):
     align_lr_fig.savefig('align_lr_fig.pdf')
 
 
+def plot_autograd_lr(df_relu):
+    align_relu_plot = sns.lineplot(x=r"$p$ Hidden Layer Width", y='Alignment',
+                                   hue=r"Regularization $\lambda$", data=df_relu, legend="full")
+    align_relu_fig = align_relu_plot.get_figure()
+    align_relu_fig.savefig('align_autograd_lr_fig.pdf')
+
+
 #  # Generate alignment plot for relu network and nn data
 #  n, d = (50, 150)
 #  step = 10e-6
@@ -170,7 +179,21 @@ def plot_lr(df_lr):
 #  plot_lr(df_lr)
 
 
-# Generate alignment plot for autograd relu network and nn data
+# # Generate alignment plot for autograd relu network and nn data
+# n, d = (50, 150)
+# step = 10e-4
+# n_step = 5000
+# n_iter = 20
+# p_start = 300
+# p_end = 1000
+# p_step = 25
+# p_list = np.arange(start=p_start, stop=p_end + p_step, step=p_step)
+# reg_list = [0, 2, 5]
+# df_relu = get_autograd_align_df(n, d, p_list, reg_list, 'relu', 'nn', step, n_step, n_iter)
+# plot_autograd_relu(df_relu)
+
+
+# Generate alignment plot for autograd linear network and lr data
 n, d = (50, 150)
 step = 10e-4
 n_step = 5000
@@ -180,5 +203,5 @@ p_end = 1000
 p_step = 25
 p_list = np.arange(start=p_start, stop=p_end + p_step, step=p_step)
 reg_list = [0, 2, 5]
-df_relu = get_autograd_align_df(n, d, p_list, reg_list, 'relu', 'nn', step, n_step, n_iter)
-plot_autograd_relu(df_relu)
+df_lr = get_autograd_align_df(n, d, p_list, reg_list, 'non', 'lr', step, n_step, n_iter)
+plot_autograd_lr(df_lr)
