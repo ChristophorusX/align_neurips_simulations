@@ -76,7 +76,7 @@ def get_autograd_align_df(n, d, p_list, reg_list, activation, synthetic_data, st
                 if activation == 'relu':
                     torch_net_fa = net_autograd.TwoLayerFeedbackAlignmentNetworkReLU(
                         d, p, reg)
-                    net_autograd.to(device)
+                    torch_net_fa.to(device)
                 optimizer_fa = torch.optim.SGD(
                     torch_net_fa.parameters(), lr=step)
                 loss_fn_fa = nn.MSELoss()
