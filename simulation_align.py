@@ -197,11 +197,12 @@ def plot_autograd_lr(df_relu):
 n, d = (50, 150)
 step = 10e-4
 n_step = 5000
-n_iter = 2
-p_start = 9000
+n_iter = 10
+p_start = 5000
 p_end = 10000
-p_step = 1000
+p_step = 100
 p_list = np.arange(start=p_start, stop=p_end + p_step, step=p_step)
-reg_list = [0, 2, 5]
+reg_list = [0, 1, 2]
 df_lr = get_autograd_align_df(n, d, p_list, reg_list, 'non', 'lr', step, n_step, n_iter)
 plot_autograd_lr(df_lr)
+df_lr.to_csv('df_lr_large.csv', index=False)
