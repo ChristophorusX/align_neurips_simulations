@@ -5,6 +5,13 @@ import torch.nn.functional as F
 import fa_autograd
 import torchvision
 from torchvision import datasets, transforms
+import matplotlib.pyplot as plt
+from matplotlib import rc
+plt.style.use('ggplot')
+# plt.rcParams.update({'font.size': 28})
+# plt.rcParams["figure.figsize"] = (9, 9)
+# rc('font', **{'family': 'serif', 'serif': ['Latin Modern Roman']})
+rc('text', usetex=True)
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 print(device)
 
@@ -27,17 +34,10 @@ class MNISTTwoLayerFeedbackAlignmentNetworkReLU(nn.Module):
 
 
 def get_align_mnist():
-    for batch_idx, (data, target) in enumerate(train_loader):
-        pass
+    pass
 
 
-def train_epoch(torch_net_fa):
-    transform = transforms.Compose(
-        [transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,))])
-    mnist_trainset = datasets.MNIST(
-        root='./data', train=True, download=True, transform=transform)
-    # mnist_testset = datasets.MNIST(root='./data', train=False, download=True, transform=None)
-    len(mnist_trainset)
+def train_epoch_fa(torch_net_fa, mnist_trainset, align_array):
     train_loader = torch.utils.data.DataLoader(mnist_trainset)
     optimizer_fa = torch.optim.SGD(torch_net_fa.parameters(), lr=10e-6)
     for batch_idx, (data, target) in enumerate(train_loader):
@@ -47,11 +47,29 @@ def train_epoch(torch_net_fa):
         loss = F.nll_loss(output, target)
         loss.backward()
         optimizer_fa.step()
-        if batch_idx % 10000 == 9999:
+        for name, param in torch_net_fa.named_parameters():
+            if name == 'second_layer.backprop_weight':
+                backprop_weight = param.data
+            if name == 'second_layer.weight':
+                second_layer_weight = param.data
+        align = torch.tensordot(backprop_weight, second_layer_weight) / \
+            torch.norm(backprop_weight) / \
+            torch.norm(second_layer_weight)
+        align = align.cpu().data.detach().numpy().flatten()
+        align_array.append(align)
+        if batch_idx % 1000 == 999:
             print(batch_idx, loss.item())
+            print(align)
 
 
-n_epochs = 10
+n_epochs = 1
+align_array = []
+transform = transforms.Compose(
+    [transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,))])
+mnist_trainset = datasets.MNIST(
+    root='./data', train=True, download=True, transform=transform)
+# mnist_testset = datasets.MNIST(root='./data', train=False, download=True, transform=transform)
 torch_net_fa = MNISTTwoLayerFeedbackAlignmentNetworkReLU(1000, 0).to(device)
 for epoch in range(n_epochs):
-    train_epoch(torch_net_fa)
+    train_epoch_fa(torch_net_fa, mnist_trainset, align_array)
+align_plot = plt.plot(np.arange(n_epochs * len(mnist_trainset)), align_array)
