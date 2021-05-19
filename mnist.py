@@ -72,4 +72,7 @@ mnist_trainset = datasets.MNIST(
 torch_net_fa = MNISTTwoLayerFeedbackAlignmentNetworkReLU(1000, 0).to(device)
 for epoch in range(n_epochs):
     train_epoch_fa(torch_net_fa, mnist_trainset, align_array)
-align_plot = plt.plot(np.arange(n_epochs * len(mnist_trainset)), align_array)
+align_plot = plt.plot(np.arange(n_epochs * len(mnist_trainset)), align_array, label='Two Layer ReLU')
+plt.xlabel('Iterations')
+plt.ylabel('Alignment')
+plt.savefig('mnist_relu_alignment.pdf')
