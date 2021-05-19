@@ -196,7 +196,7 @@ def plot_align(df, filename):
 n, d = (50, 150)
 step = 10e-4
 n_step = 5000
-n_iter = 2
+n_iter = 10
 p_start = 5000
 p_end = 10000
 p_step = 100
