@@ -162,19 +162,19 @@ def plot_align(df, filename):
 #  plot_align(df_lr, 'align_lr_fig_large.pdf')
 
 
-# Generate alignment plot for autograd relu network and nn data
-n, d = (50, 150)
-step = 10e-4
-n_step = 5000
-n_iter = 10
-p_start = 5000
-p_end = 10000
-p_step = 100
-p_list = np.arange(start=p_start, stop=p_end + p_step, step=p_step)
-reg_list = [0, 1, 2]
-df_relu = get_autograd_align_df(n, d, p_list, reg_list, 'relu', 'nn', step, n_step, n_iter)
-plot_align(df_relu, 'align_autograd_relu_fig_large.pdf')
-df_relu.to_csv('df_relu_large.csv', index=False)
+#  # Generate alignment plot for autograd relu network and nn data
+#  n, d = (50, 150)
+#  step = 10e-4
+#  n_step = 5000
+#  n_iter = 10
+#  p_start = 5000
+#  p_end = 10000
+#  p_step = 100
+#  p_list = np.arange(start=p_start, stop=p_end + p_step, step=p_step)
+#  reg_list = [0, 1, 2]
+#  df_relu = get_autograd_align_df(n, d, p_list, reg_list, 'relu', 'nn', step, n_step, n_iter)
+#  plot_align(df_relu, 'align_autograd_relu_fig_large.pdf')
+#  df_relu.to_csv('df_relu_large.csv', index=False)
 
 
 #  # Generate alignment plot for autograd linear network and lr data
