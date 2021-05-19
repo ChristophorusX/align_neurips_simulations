@@ -62,7 +62,7 @@ step = 10e-6
 n_step = 100000
 
 
-def get_autograd_align_df(n, d, p_list, reg_list, activation, synthetic_data, step, n_step, n_iter):
+def get_autograd_align_df(n, d, p_list, reg_list, activation, synthetic_data, step, n_step, n_iter, drop_out=False):
     reg_align_df = []
     for reg in reg_list:
         align_table = []
@@ -74,7 +74,11 @@ def get_autograd_align_df(n, d, p_list, reg_list, activation, synthetic_data, st
                 elif synthetic_data == 'nn':
                     X, y = data_gen.rand_nn_data(n, d, p)
                 if activation == 'relu':
-                    torch_net_fa = net_autograd.TwoLayerFeedbackAlignmentNetworkReLU(
+                    if drop_out:
+                        torch_net_fa = net_autograd.TwoLayerFeedbackAlignmentDropoutNetworkReLU(
+                            d, p, reg)
+                    else:
+                        torch_net_fa = net_autograd.TwoLayerFeedbackAlignmentNetworkReLU(
                         d, p, reg)
                 elif activation == 'non':
                     torch_net_fa = net_autograd.TwoLayerFeedbackAlignmentNetworkLinear(d, p, reg)
@@ -117,53 +121,32 @@ def get_autograd_align_df(n, d, p_list, reg_list, activation, synthetic_data, st
             int)
         align_df['Alignment'] = align_df['Alignment'].astype(np.double)
         align_df[r"Regularization $\lambda$"] = align_df[r"Regularization $\lambda$"].astype(
-            int)
+            float)
         reg_align_df.append(align_df)
     df = pd.concat(reg_align_df)
     return df
 
 
-def plot_relu(df_relu):
-    align_relu_plot = sns.lineplot(x=r"$p$ Hidden Layer Width", y='Alignment',
-                                   hue=r"Regularization $\lambda$", data=df_relu, legend="full")
-    align_relu_fig = align_relu_plot.get_figure()
-    align_relu_fig.savefig('align_relu_fig.pdf')
+def plot_align(df, filename):
+    align_plot = sns.lineplot(x=r"$p$ Hidden Layer Width", y='Alignment',
+                                   hue=r"Regularization $\lambda$", data=df, legend="full")
+    align_fig = align_plot.get_figure()
+    align_fig.savefig(filename)
 
 
-def plot_autograd_relu(df_relu):
-    align_relu_plot = sns.lineplot(x=r"$p$ Hidden Layer Width", y='Alignment',
-                                   hue=r"Regularization $\lambda$", data=df_relu, legend="full")
-    align_relu_fig = align_relu_plot.get_figure()
-    align_relu_fig.savefig('align_autograd_relu_fig_large.pdf')
-
-
-def plot_lr(df_lr):
-    align_lr_plot = sns.lineplot(x=r"$p$ Hidden Layer Width", y='Alignment',
-                                   hue=r"Regularization $\lambda$", data=df_lr, legend="full")
-    align_lr_fig = align_lr_plot.get_figure()
-    align_lr_fig.savefig('align_lr_fig.pdf')
-
-
-def plot_autograd_lr(df_relu):
-    align_relu_plot = sns.lineplot(x=r"$p$ Hidden Layer Width", y='Alignment',
-                                   hue=r"Regularization $\lambda$", data=df_relu, legend="full")
-    align_relu_fig = align_relu_plot.get_figure()
-    align_relu_fig.savefig('align_autograd_lr_fig_large.pdf')
-
-
-#  # Generate alignment plot for relu network and nn data
-#  n, d = (50, 150)
-#  step = 10e-6
-#  n_step = 6000
-#  n_iter = 20
-#  p_start = 300
-#  p_end = 1000
-#  p_step = 25
-#  p_list = np.arange(start=p_start, stop=p_end + p_step, step=p_step)
-#  reg_list = [0, 10, 20]
-#  df_relu = get_align_df(n, d, p_list, reg_list, 'relu',
-#                        'nn', step, n_step, n_iter)
-#  plot_relu(df_relu)
+# Generate alignment plot for relu network and nn data
+n, d = (50, 150)
+step = 10e-6
+n_step = 6000
+n_iter = 2
+p_start = 9000
+p_end = 10000
+p_step = 1000
+p_list = np.arange(start=p_start, stop=p_end + p_step, step=p_step)
+reg_list = [0, 10, 20]
+df_relu = get_align_df(n, d, p_list, reg_list, 'relu',
+                   'nn', step, n_step, n_iter)
+plot_align(df_relu, 'align_relu_fig_large.pdf')
 
 #  # Generate alignment plot for linear network and lr data
 #  n, d = (50, 150)
@@ -176,22 +159,22 @@ def plot_autograd_lr(df_relu):
 #  p_list = np.arange(start=p_start, stop=p_end + p_step, step=p_step)
 #  reg_list = [0, 5, 10]
 #  df_lr = get_align_df(n, d, p_list, reg_list, 'non', 'lr', step, n_step, n_iter)
-#  plot_lr(df_lr)
+#  plot_align(df_lr, 'align_lr_fig_large.pdf')
 
 
-# Generate alignment plot for autograd relu network and nn data
-n, d = (50, 150)
-step = 10e-4
-n_step = 5000
-n_iter = 10
-p_start = 5000
-p_end = 10000
-p_step = 100
-p_list = np.arange(start=p_start, stop=p_end + p_step, step=p_step)
-reg_list = [0, 1, 2]
-df_relu = get_autograd_align_df(n, d, p_list, reg_list, 'relu', 'nn', step, n_step, n_iter)
-plot_autograd_relu(df_relu)
-df_relu.to_csv('df_relu_large.csv', index=False)
+# # Generate alignment plot for autograd relu network and nn data
+# n, d = (50, 150)
+# step = 10e-4
+# n_step = 5000
+# n_iter = 10
+# p_start = 5000
+# p_end = 10000
+# p_step = 100
+# p_list = np.arange(start=p_start, stop=p_end + p_step, step=p_step)
+# reg_list = [0, 1, 2]
+# df_relu = get_autograd_align_df(n, d, p_list, reg_list, 'relu', 'nn', step, n_step, n_iter)
+# plot_align(df_relu, 'align_autograd_relu_fig_large.pdf')
+# df_relu.to_csv('df_relu_large.csv', index=False)
 
 
 #  # Generate alignment plot for autograd linear network and lr data
@@ -205,5 +188,20 @@ df_relu.to_csv('df_relu_large.csv', index=False)
 #  p_list = np.arange(start=p_start, stop=p_end + p_step, step=p_step)
 #  reg_list = [0, 1, 2]
 #  df_lr = get_autograd_align_df(n, d, p_list, reg_list, 'non', 'lr', step, n_step, n_iter)
-#  plot_autograd_lr(df_lr)
+#  plot_align(df_lr, 'align_autograd_lr_fig_large.pdf')
 #  df_lr.to_csv('df_lr_large.csv', index=False)
+
+
+# Generate alignment plot for autograd relu network and nn data with dropout
+n, d = (50, 150)
+step = 10e-4
+n_step = 5000
+n_iter = 2
+p_start = 500
+p_end = 600
+p_step = 100
+p_list = np.arange(start=p_start, stop=p_end + p_step, step=p_step)
+reg_list = [0, 0.3, 0.6]
+df_relu = get_autograd_align_df(n, d, p_list, reg_list, 'relu', 'nn', step, n_step, n_iter, drop_out=True)
+plot_align(df_relu, 'align_autograd_relu_dropout_fig_large.pdf')
+df_relu.to_csv('df_relu_dropout_large.csv', index=False)
