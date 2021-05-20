@@ -106,7 +106,7 @@ class FeedbackAlignmentFunctionSigmoid(Function):
     def backward(ctx, grad_output):
         input, weight, backprop_weight = ctx.saved_variables
         grad_input = grad_weight = grad_backprop_weight = None
-        def act_derivative(x): return torch.sigmoid(x)(torch.ones_like(x) - torch.sigmoid(x))
+        def act_derivative(x): return torch.sigmoid(x) * (torch.ones_like(x) - torch.sigmoid(x))
         if ctx.needs_input_grad[0]:
             grad_input = (act_derivative(input.mm(weight.t()))
                           * grad_output).mm(backprop_weight)
