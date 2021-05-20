@@ -190,7 +190,7 @@ p_start = 5000
 p_end = 6000
 p_step = 1000
 p_list = np.arange(start=p_start, stop=p_end + p_step, step=p_step)
-reg_list = [0, 0.1, 1]
+reg_list = [0, 0.1, 0.2]
 df_sigmoid = get_autograd_align_df(n, d, p_list, reg_list, 'sigmoid', 'nn', step, n_step, n_iter)
 plot_align(df_sigmoid, 'align_autograd_sigmoid_fig_large.pdf')
 df_sigmoid.to_csv('df_sigmoid_large.csv', index=False)
