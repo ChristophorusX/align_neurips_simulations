@@ -28,7 +28,7 @@ def get_align_df(n, d, p_list, reg_list, activation, synthetic_data, step, n_ste
                 if synthetic_data == 'lr':
                     X, y = data_gen.lr_data(n, d)
                 elif synthetic_data == 'nn':
-                    X, y = data_gen.rand_nn_data(n, d, p)
+                    X, y = data_gen.rand_nn_data(n, d, p, activation)
                 seed = np.random.randint(100000)
                 net = fa_two_layer.TwoLayerNetwork(activation, d, p, n, seed)
                 loss_fa, beta, b = net.feedback_alignment(
@@ -73,7 +73,7 @@ def get_autograd_align_df(n, d, p_list, reg_list, activation, synthetic_data, st
                 if synthetic_data == 'lr':
                     X, y = data_gen.lr_data(n, d)
                 elif synthetic_data == 'nn':
-                    X, y = data_gen.rand_nn_data(n, d, p)
+                    X, y = data_gen.rand_nn_data(n, d, p, activation)
                 if activation == 'relu':
                     if drop_out:
                         torch_net_fa = net_autograd.TwoLayerFeedbackAlignmentDropoutNetworkReLU(
