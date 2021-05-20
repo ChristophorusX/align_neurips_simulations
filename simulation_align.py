@@ -183,7 +183,7 @@ def plot_align(df, filename):
 
 # Generate alignment plot for autograd sigmoid network and nn data
 n, d = (50, 150)
-step = 10e-3
+step = 10e-2
 n_step = 5000
 n_iter = 10
 p_start = 5000
