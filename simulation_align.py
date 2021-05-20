@@ -9,7 +9,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from matplotlib import rc
 plt.style.use('ggplot')
-sns.set_palette("Dark2_r")
+sns.set_palette("Paired")
 # plt.rcParams.update({'font.size': 28})
 # plt.rcParams["figure.figsize"] = (9, 9)
 # rc('font', **{'family': 'serif', 'serif': ['Latin Modern Roman']})
@@ -185,7 +185,7 @@ def plot_align(df, filename):
 n, d = (50, 150)
 step = 10e-2
 n_step = 5000
-n_iter = 1
+n_iter = 2
 p_start = 5000
 p_end = 6000
 p_step = 1000
