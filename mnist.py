@@ -40,11 +40,12 @@ def get_align_mnist():
 def train_epoch_fa(torch_net_fa, mnist_trainset, mnist_testset, align_array, loss_array, accuracy_array):
     train_loader = torch.utils.data.DataLoader(mnist_trainset)
     test_loader = torch.utils.data.DataLoader(mnist_testset)
-    optimizer_fa = torch.optim.SGD(torch_net_fa.parameters(), lr=10e-6)
+    optimizer_fa = torch.optim.SGD(torch_net_fa.parameters(), lr=10e-4)
     for batch_idx, (data, target) in enumerate(train_loader):
-        torch_net_fa.train()
+        # torch_net_fa.train()
         data = data.flatten().unsqueeze(0).to(device)
         target = target.to(device)
+        optimizer_fa.zero_grad()
         output = torch_net_fa(data)
         loss = F.nll_loss(output, target)
         loss.backward()
@@ -61,7 +62,7 @@ def train_epoch_fa(torch_net_fa, mnist_trainset, mnist_testset, align_array, los
         align_array.append(align)
         if batch_idx % 1000 == 999:
             print(align)
-            torch_net_fa.eval()
+            # torch_net_fa.eval()
             test_loss = 0
             n_correct = 0
             with torch.no_grad():
@@ -80,18 +81,38 @@ def train_epoch_fa(torch_net_fa, mnist_trainset, mnist_testset, align_array, los
 
 
 n_epochs = 1
-align_array = []
-loss_array = []
-accuracy_array = []
 transform = transforms.Compose(
     [transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,))])
 mnist_trainset = datasets.MNIST(
     root='./data', train=True, download=True, transform=transform)
 mnist_testset = datasets.MNIST(root='./data', train=False, download=True, transform=transform)
 torch_net_fa = MNISTTwoLayerFeedbackAlignmentNetworkReLU(1000, 0).to(device)
+torch_net_fa_reg = type(torch_net_fa)(1000, 0).to(device)
+torch_net_fa_reg.load_state_dict(torch_net_fa.state_dict())
+for name, param in torch_net_fa_reg.named_parameters():
+    if name == 'second_layer.regularization':
+        print('modifying regularization...')
+        param.data.copy_(1 * torch.ones_like(param.data))
+align_array = []
+loss_array = []
+accuracy_array = []
 for epoch in range(n_epochs):
     train_epoch_fa(torch_net_fa, mnist_trainset, mnist_testset, align_array, loss_array, accuracy_array)
-align_plot = plt.plot(np.arange(n_epochs * len(mnist_trainset)), align_array, label='Two Layer ReLU')
-plt.xlabel('# of samples')
-plt.ylabel('Alignment')
-plt.savefig('mnist_relu_alignment.pdf')
+# align_plot = plt.plot(np.arange(n_epochs * len(mnist_trainset)), align_array, label='Two Layer ReLU')
+# accuracy_plot = plt.plot(np.arange(len(accuracy_array)), accuracy_array)
+align_array_reg = []
+loss_array_reg = []
+accuracy_array_reg = []
+for epoch in range(n_epochs):
+    train_epoch_fa(torch_net_fa_reg, mnist_trainset, mnist_testset, align_array_reg, loss_array_reg, accuracy_array_reg)
+fig = plt.figure()
+ax1 = plt.subplot(211)
+ax1.plot(np.arange(n_epochs * len(mnist_trainset)), align_array, np.arange(n_epochs * len(mnist_trainset)), align_array_reg)
+ax2 = plt.subplot(212)
+ax2.plot(np.arange(len(accuracy_array)), accuracy_array, np.arange(len(accuracy_array_reg)), accuracy_array_reg)
+fig.savefig('mnist_alignment_relu.pdf')
+# align_plot = plt.plot(np.arange(n_epochs * len(mnist_trainset)), align_array_reg, label='Two Layer ReLU With Reg')
+# accuracy_plot = plt.plot(np.arange(len(accuracy_array)), accuracy_array)
+# plt.xlabel('# of samples')
+# plt.ylabel('Alignment')
+# plt.savefig('mnist_relu_alignment.pdf')
