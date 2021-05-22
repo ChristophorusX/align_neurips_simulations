@@ -33,6 +33,26 @@ class MNISTTwoLayerFeedbackAlignmentNetworkReLU(nn.Module):
         return F.log_softmax(prediction, dim=1)
 
 
+class MNISTThreeLayerFeedbackAlignmentNetworkReLU(nn.Module):
+    def __init__(self, hidden_features, regularization):
+        super(MNISTThreeLayerFeedbackAlignmentNetworkReLU, self).__init__()
+        self.input_features = 784
+        self.hidden_features = hidden_features
+
+        self.first_layer = fa_autograd.FeedbackAlignmentReLU(
+            self.input_features, self.hidden_features)
+        self.second_layer = fa_autograd.FeedbackAlignmentReLU(
+            self.hidden_features, self.hidden_features)
+        self.third_layer = fa_autograd.RegLinear(
+            self.hidden_features, 10, regularization)
+
+    def forward(self, X):
+        hidden = self.first_layer(X)
+        hidden2 = self.second_layer(hidden)
+        prediction = self.second_layer(hidden2) / self.hidden_features
+        return F.log_softmax(prediction, dim=1)
+
+
 def get_align_mnist():
     pass
 
@@ -51,9 +71,9 @@ def train_epoch_fa(torch_net_fa, mnist_trainset, mnist_testset, align_array, los
         loss.backward()
         optimizer_fa.step()
         for name, param in torch_net_fa.named_parameters():
-            if name == 'second_layer.backprop_weight':
+            if name == 'third_layer.backprop_weight':
                 backprop_weight = param.data
-            if name == 'second_layer.weight':
+            if name == 'third_layer.weight':
                 second_layer_weight = param.data
         align = torch.tensordot(backprop_weight, second_layer_weight) / \
             torch.norm(backprop_weight) / \
@@ -86,13 +106,13 @@ transform = transforms.Compose(
 mnist_trainset = datasets.MNIST(
     root='./data', train=True, download=True, transform=transform)
 mnist_testset = datasets.MNIST(root='./data', train=False, download=True, transform=transform)
-torch_net_fa = MNISTTwoLayerFeedbackAlignmentNetworkReLU(1000, 0).to(device)
+torch_net_fa = MNISTThreeLayerFeedbackAlignmentNetworkReLU(1000, 0).to(device)
 torch_net_fa_reg = type(torch_net_fa)(1000, 0).to(device)
 torch_net_fa_reg.load_state_dict(torch_net_fa.state_dict())
 for name, param in torch_net_fa_reg.named_parameters():
-    if name == 'second_layer.regularization':
+    if name == 'third_layer.regularization':
         print('modifying regularization...')
-        param.data.copy_(1 * torch.ones_like(param.data))
+        param.data.copy_(0.1 * torch.ones_like(param.data))
 align_array = []
 loss_array = []
 accuracy_array = []
