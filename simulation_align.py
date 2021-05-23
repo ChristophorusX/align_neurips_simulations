@@ -6,6 +6,7 @@ import torch
 from torch import nn
 import pandas as pd
 import seaborn as sns
+import argparse
 import matplotlib.pyplot as plt
 from matplotlib import rc
 plt.style.use('ggplot')
@@ -73,12 +74,13 @@ def get_autograd_align_df(n, d, p_list, reg_list, activation, synthetic_data, st
                             d, p, reg)
                     else:
                         torch_net_fa = net_autograd.TwoLayerFeedbackAlignmentNetworkReLU(
-                        d, p, reg)
+                            d, p, reg)
                 elif activation == 'sigmoid':
                     torch_net_fa = net_autograd.TwoLayerFeedbackAlignmentNetworkSigmoid(
-                    d, p, reg)
+                        d, p, reg)
                 elif activation == 'non':
-                    torch_net_fa = net_autograd.TwoLayerFeedbackAlignmentNetworkLinear(d, p, reg)
+                    torch_net_fa = net_autograd.TwoLayerFeedbackAlignmentNetworkLinear(
+                        d, p, reg)
                 torch_net_fa.to(device)
                 optimizer_fa = torch.optim.SGD(
                     torch_net_fa.parameters(), lr=step)
@@ -126,95 +128,117 @@ def get_autograd_align_df(n, d, p_list, reg_list, activation, synthetic_data, st
 
 def plot_align(df, filename):
     align_plot = sns.lineplot(x=r"$p$ Hidden Layer Width", y='Alignment',
-                                   hue=r"Regularization $\lambda$", data=df, legend="full")
+                              hue=r"Regularization $\lambda$", data=df, legend="full")
     align_fig = align_plot.get_figure()
     align_fig.savefig(filename)
 
+
 if __name__ == '__main__':
 
-    # # Generate alignment plot for relu network and nn data
-    # n, d = (50, 150)
-    # step = 10e-6
-    # n_step = 6000
-    # n_iter = 2
-    # p_start = 9000
-    # p_end = 10000
-    # p_step = 1000
-    # p_list = np.arange(start=p_start, stop=p_end + p_step, step=p_step)
-    # reg_list = [0, 10, 20]
-    # df_relu = get_align_df(n, d, p_list, reg_list, 'relu',
-    #                    'nn', step, n_step, n_iter)
-    # plot_align(df_relu, 'align_relu_fig_large.pdf')
+    parser = argparse.ArgumentParser(description="Alignment Simulations")
+    parser.add_argument('-d', '--data')
+    parser.add_argument('-n', '--network')
+    parser.add_argument('-s', '--scheme')
+    parser.add_argument('-r', '--regularization')
 
-    #  # Generate alignment plot for linear network and lr data
-    #  n, d = (50, 150)
-    #  step = 10e-5
-    #  n_step = 2000
-    #  n_iter = 10
-    #  p_start = 300
-    #  p_end = 1000
-    #  p_step = 25
-    #  p_list = np.arange(start=p_start, stop=p_end + p_step, step=p_step)
-    #  reg_list = [0, 5, 10]
-    #  df_lr = get_align_df(n, d, p_list, reg_list, 'non', 'lr', step, n_step, n_iter)
-    #  plot_align(df_lr, 'align_lr_fig_large.pdf')
+    args = parser.parse_args()
 
+    # Generate alignment plot for relu network and nn data
+    if args.data == 'nn' and args.network == 'relu' and args.scheme == 'manual' and args.regularization == 'l2':
+        print("Generate alignment plot for relu network and nn data")
+        n, d = (50, 150)
+        step = 10e-6
+        n_step = 6000
+        n_iter = 2
+        p_start = 9000
+        p_end = 10000
+        p_step = 1000
+        p_list = np.arange(start=p_start, stop=p_end + p_step, step=p_step)
+        reg_list = [0, 10, 20]
+        df_relu = get_align_df(n, d, p_list, reg_list, 'relu',
+                               'nn', step, n_step, n_iter)
+        plot_align(df_relu, 'outputs/align_relu_fig_large.pdf')
 
-    #  # Generate alignment plot for autograd relu network and nn data
-    #  n, d = (50, 150)
-    #  step = 10e-4
-    #  n_step = 5000
-    #  n_iter = 10
-    #  p_start = 5000
-    #  p_end = 10000
-    #  p_step = 100
-    #  p_list = np.arange(start=p_start, stop=p_end + p_step, step=p_step)
-    #  reg_list = [0, 1, 2]
-    #  df_relu = get_autograd_align_df(n, d, p_list, reg_list, 'relu', 'nn', step, n_step, n_iter)
-    #  plot_align(df_relu, 'align_autograd_relu_fig_large.pdf')
-    #  df_relu.to_csv('df_relu_large.csv', index=False)
+    # Generate alignment plot for linear network and lr data
+    if args.data == 'lr' and args.network == 'non' and args.scheme == 'manual' and args.regularization == 'l2':
+        print("Generate alignment plot for linear network and lr data")
+        n, d = (50, 150)
+        step = 10e-5
+        n_step = 2000
+        n_iter = 10
+        p_start = 300
+        p_end = 1000
+        p_step = 25
+        p_list = np.arange(start=p_start, stop=p_end + p_step, step=p_step)
+        reg_list = [0, 5, 10]
+        df_lr = get_align_df(n, d, p_list, reg_list, 'non',
+                             'lr', step, n_step, n_iter)
+        plot_align(df_lr, 'outputs/align_lr_fig_large.pdf')
 
+    # Generate alignment plot for autograd relu network and nn data
+    if args.data == 'nn' and args.network == 'relu' and args.scheme == 'autograd' and args.regularization == 'l2':
+        print("Generate alignment plot for autograd relu network and nn data")
+        n, d = (50, 150)
+        step = 10e-4
+        n_step = 5000
+        n_iter = 10
+        p_start = 5000
+        p_end = 10000
+        p_step = 100
+        p_list = np.arange(start=p_start, stop=p_end + p_step, step=p_step)
+        reg_list = [0, 1, 2]
+        df_relu = get_autograd_align_df(
+            n, d, p_list, reg_list, 'relu', 'nn', step, n_step, n_iter)
+        plot_align(df_relu, 'outputs/align_autograd_relu_fig_large.pdf')
+        df_relu.to_csv('dataframes/df_relu_large.csv', index=False)
 
     # Generate alignment plot for autograd sigmoid network and nn data
-    n, d = (50, 150)
-    step = 10e-2
-    n_step = 5000
-    n_iter = 10
-    p_start = 5000
-    p_end = 6000
-    p_step = 1000
-    p_list = np.arange(start=p_start, stop=p_end + p_step, step=p_step)
-    reg_list = [0, 0.01, 0.1]
-    df_sigmoid = get_autograd_align_df(n, d, p_list, reg_list, 'sigmoid', 'nn', step, n_step, n_iter)
-    plot_align(df_sigmoid, 'align_autograd_sigmoid_fig_large.pdf')
-    df_sigmoid.to_csv('df_sigmoid_large.csv', index=False)
+    if args.data == 'nn' and args.network == 'sigmoid' and args.scheme == 'autograd' and args.regularization == 'l2':
+        print("Generate alignment plot for autograd sigmoid network and nn data")
+        n, d = (50, 150)
+        step = 10e-2
+        n_step = 5000
+        n_iter = 10
+        p_start = 5000
+        p_end = 6000
+        p_step = 1000
+        p_list = np.arange(start=p_start, stop=p_end + p_step, step=p_step)
+        reg_list = [0, 0.01, 0.1]
+        df_sigmoid = get_autograd_align_df(
+            n, d, p_list, reg_list, 'sigmoid', 'nn', step, n_step, n_iter)
+        plot_align(df_sigmoid, 'outputs/align_autograd_sigmoid_fig_large.pdf')
+        df_sigmoid.to_csv('dataframes/df_sigmoid_large.csv', index=False)
 
+    # Generate alignment plot for autograd linear network and lr data
+    if args.data == 'lr' and args.network == 'non' and args.scheme == 'autograd' and args.regularization == 'l2':
+        print("Generate alignment plot for autograd linear network and lr data")
+        n, d = (50, 150)
+        step = 10e-4
+        n_step = 5000
+        n_iter = 10
+        p_start = 5000
+        p_end = 10000
+        p_step = 100
+        p_list = np.arange(start=p_start, stop=p_end + p_step, step=p_step)
+        reg_list = [0, 1, 2]
+        df_lr = get_autograd_align_df(
+            n, d, p_list, reg_list, 'non', 'lr', step, n_step, n_iter)
+        plot_align(df_lr, 'outputs/align_autograd_lr_fig_large.pdf')
+        df_lr.to_csv('dataframes/df_lr_large.csv', index=False)
 
-    #  # Generate alignment plot for autograd linear network and lr data
-    #  n, d = (50, 150)
-    #  step = 10e-4
-    #  n_step = 5000
-    #  n_iter = 10
-    #  p_start = 5000
-    #  p_end = 10000
-    #  p_step = 100
-    #  p_list = np.arange(start=p_start, stop=p_end + p_step, step=p_step)
-    #  reg_list = [0, 1, 2]
-    #  df_lr = get_autograd_align_df(n, d, p_list, reg_list, 'non', 'lr', step, n_step, n_iter)
-    #  plot_align(df_lr, 'align_autograd_lr_fig_large.pdf')
-    #  df_lr.to_csv('df_lr_large.csv', index=False)
-
-
-    # # Generate alignment plot for autograd relu network and nn data with dropout
-    # n, d = (50, 150)
-    # step = 10e-4
-    # n_step = 5000
-    # n_iter = 10
-    # p_start = 5000
-    # p_end = 10000
-    # p_step = 100
-    # p_list = np.arange(start=p_start, stop=p_end + p_step, step=p_step)
-    # reg_list = [0, 0.3, 0.6]
-    # df_relu = get_autograd_align_df(n, d, p_list, reg_list, 'relu', 'nn', step, n_step, n_iter, drop_out=True)
-    # plot_align(df_relu, 'align_autograd_relu_dropout_fig_large.pdf')
-    # df_relu.to_csv('df_relu_dropout_large.csv', index=False)
+    # Generate alignment plot for autograd relu network and nn data with dropout
+    if args.data == 'nn' and args.network == 'relu' and args.scheme == 'autograd' and args.regularization == 'dropout':
+        print("Generate alignment plot for autograd relu network and nn data with dropout")
+        n, d = (50, 150)
+        step = 10e-4
+        n_step = 5000
+        n_iter = 10
+        p_start = 5000
+        p_end = 10000
+        p_step = 100
+        p_list = np.arange(start=p_start, stop=p_end + p_step, step=p_step)
+        reg_list = [0, 0.3, 0.6]
+        df_relu = get_autograd_align_df(
+            n, d, p_list, reg_list, 'relu', 'nn', step, n_step, n_iter, drop_out=True)
+        plot_align(df_relu, 'outputs/align_autograd_relu_dropout_fig_large.pdf')
+        df_relu.to_csv('dataframes/df_relu_dropout_large.csv', index=False)
