@@ -224,8 +224,8 @@ if __name__ == '__main__':
         reg_list = [0, 1, 2]
         df_lr = get_autograd_align_df(
             n, d, p_list, reg_list, 'non', 'lr', step, n_step, n_iter)
-        plot_align(df_lr, 'outputs/align_autograd_lr_fig_large.pdf')
-        df_lr.to_csv('dataframes/df_lr_large.csv', index=False)
+        plot_align(df_lr, "outputs/align_{}_{}_{}_{}.pdf".format(args.data, args.network, args.scheme, args.regularization))
+        df_lr.to_csv("dataframes/df_{}_{}_{}_{}.csv".format(args.data, args.network, args.scheme, args.regularization), index=False)
 
     # Generate alignment plot for autograd relu network and nn data with dropout
     if args.data == 'nn' and args.network == 'relu' and args.scheme == 'autograd' and args.regularization == 'dropout':
