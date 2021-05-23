@@ -126,7 +126,8 @@ def get_autograd_align_df(n, d, p_list, reg_list, activation, synthetic_data, st
 
 
 def plot_align(df, filename):
-    sns.set_palette("Paired")
+    custom_palette = sns.color_palette("Paired", 5)
+    sns.palplot(custom_palette)
     align_plot = sns.lineplot(x=r"$p$ Hidden Layer Width", y='Alignment',
                               hue=r"Regularization $\lambda$", data=df, legend="full")
     align_fig = align_plot.get_figure()
