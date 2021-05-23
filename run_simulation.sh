@@ -11,4 +11,4 @@
 module load miniconda
 conda activate alignment_env
 
-python simulation_align.py
+python simulation_align.py -d 'lr' -n 'non' -s 'autograd' -r 'l2'

@@ -216,10 +216,11 @@ if __name__ == '__main__':
         step = 10e-4
         n_step = 5000
         n_iter = 10
-        p_start = 5000
-        p_end = 10000
-        p_step = 100
-        p_list = np.arange(start=p_start, stop=p_end + p_step, step=p_step)
+        # p_start = 5000
+        # p_end = 10000
+        # p_step = 1000
+        # p_list = np.arange(start=p_start, stop=p_end + p_step, step=p_step)
+        p_list = [300, 600]
         reg_list = [0, 1, 2]
         df_lr = get_autograd_align_df(
             n, d, p_list, reg_list, 'non', 'lr', step, n_step, n_iter)
