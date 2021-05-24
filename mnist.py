@@ -62,8 +62,46 @@ class MNISTThreeLayerFeedbackAlignmentNetworkReLU(nn.Module):
         return F.log_softmax(self.prediction, dim=1)
 
 
-def get_align_mnist():
-    pass
+def get_align_mnist(torch_net_fa):
+    is_three_layer = False
+    for name, param in torch_net_fa.named_parameters():
+        if name == 'third_layer.backprop_weight':
+            is_three_layer = True
+    if is_three_layer:
+        for name, param in torch_net_fa.named_parameters():
+            if name == 'second_layer.backprop_weight':
+                second_backprop_weight = param.data
+            if name == 'second_layer.weight':
+                second_layer_weight = param.data
+            if name == 'third_layer.backprop_weight':
+                third_backprop_weight = param.data
+            if name == 'third_layer.weight':
+                third_layer_weight = param.data
+        second_error_signal = torch_net_fa.hidden2.grad
+        second_delta_fa = second_error_signal.mm(second_backprop_weight)
+        second_delta_bp = second_error_signal.mm(second_layer_weight)
+        second_align = torch.tensordot(second_delta_fa, second_delta_bp) / \
+            torch.norm(second_delta_fa) / torch.norm(second_delta_bp)
+        second_align = second_align.cpu().data.detach().numpy().flatten()
+        third_error_signal = torch_net_fa.prediction.grad
+        third_delta_fa = third_error_signal.mm(third_backprop_weight)
+        third_delta_bp = third_error_signal.mm(third_layer_weight)
+        third_align = torch.tensordot(third_delta_fa, third_delta_bp) / \
+            torch.norm(third_delta_fa) / torch.norm(third_delta_bp)
+        third_align = third_align.cpu().data.detach().numpy().flatten()
+        return [second_align, third_align]
+    else:
+        for name, param in torch_net_fa.named_parameters():
+            if name == 'second_layer.backprop_weight':
+                backprop_weight = param.data
+            if name == 'second_layer.weight':
+                second_layer_weight = param.data
+        error_signal = torch_net_fa.prediction.grad
+        delta_fa = error_signal.mm(backprop_weight)
+        delta_bp = error_signal.mm(second_layer_weight)
+        align = torch.tensordot(delta_fa, delta_bp) / \
+            torch.norm(delta_fa) / torch.norm(delta_bp)
+        return align.cpu().data.detach().numpy().flatten()
 
 
 def train_epoch_fa(torch_net_fa, mnist_trainset, mnist_testset, align_array, loss_array, accuracy_array):
@@ -82,17 +120,7 @@ def train_epoch_fa(torch_net_fa, mnist_trainset, mnist_testset, align_array, los
         loss.backward()
         print(torch_net_fa.prediction.grad)
         optimizer_fa.step()
-        for name, param in torch_net_fa.named_parameters():
-            if name == 'second_layer.backprop_weight':
-                backprop_weight = param.data
-            if name == 'second_layer.weight':
-                second_layer_weight = param.data
-        error_signal = torch_net_fa.prediction.grad
-        delta_fa = error_signal.mm(backprop_weight)
-        delta_bp = error_signal.mm(second_layer_weight)
-        align = torch.tensordot(delta_fa, delta_bp) / \
-            torch.norm(delta_fa) / torch.norm(delta_bp)
-        align = align.cpu().data.detach().numpy().flatten()
+        align = get_align_mnist(torch_net_fa)
         align_array.append(align)
         if batch_idx % 1000 == 999:
             print(align)
