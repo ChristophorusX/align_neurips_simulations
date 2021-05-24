@@ -58,7 +58,7 @@ class MNISTThreeLayerFeedbackAlignmentNetworkReLU(nn.Module):
     def forward(self, X):
         hidden = self.first_layer(X)
         self.hidden2 = self.second_layer(hidden)
-        self.prediction = self.second_layer(self.hidden2) / self.hidden_features
+        self.prediction = self.third_layer(self.hidden2) / self.hidden_features
         return F.log_softmax(self.prediction, dim=1)
 
 
@@ -115,10 +115,11 @@ def train_epoch_fa(torch_net_fa, mnist_trainset, mnist_testset, align_array, los
         optimizer_fa.zero_grad()
         output = torch_net_fa(data)
         loss = F.nll_loss(output, target)
-        print(torch_net_fa.prediction.grad)
         torch_net_fa.prediction.retain_grad()
+        for name, param in torch_net_fa.named_parameters():
+            if name == 'third_layer.backprop_weight':
+                torch_net_fa.hidden2.retain_grad()
         loss.backward()
-        print(torch_net_fa.prediction.grad)
         optimizer_fa.step()
         align = get_align_mnist(torch_net_fa)
         align_array.append(align)
@@ -144,6 +145,20 @@ def train_epoch_fa(torch_net_fa, mnist_trainset, mnist_testset, align_array, los
             print(batch_idx, test_loss, accuracy)
 
 
+def get_network_with_reg(torch_net_fa, n_hidden, reg):
+    torch_net_fa_reg = type(torch_net_fa)(n_hidden, 0).to(device)
+    torch_net_fa_reg.load_state_dict(torch_net_fa.state_dict())
+    for name, param in torch_net_fa_reg.named_parameters():
+        if name == 'second_layer.regularization':
+            print('modifying second layer regularization...')
+            param.data.copy_(reg * torch.ones_like(param.data))
+        if name == 'third_layer.regularization':
+            print('modifying third layer regularization...')
+            param.data.copy_(reg * torch.ones_like(param.data))
+    return torch_net_fa_reg
+
+
+n_hidden = 1000
 n_epochs = 1
 transform = transforms.Compose(
     [transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,))])
@@ -151,13 +166,8 @@ mnist_trainset = datasets.MNIST(
     root='./data', train=True, download=True, transform=transform)
 mnist_testset = datasets.MNIST(
     root='./data', train=False, download=True, transform=transform)
-torch_net_fa = MNISTTwoLayerFeedbackAlignmentNetworkReLU(1000, 0).to(device)
-torch_net_fa_reg = type(torch_net_fa)(1000, 0).to(device)
-torch_net_fa_reg.load_state_dict(torch_net_fa.state_dict())
-for name, param in torch_net_fa_reg.named_parameters():
-    if name == 'second_layer.regularization':
-        print('modifying regularization...')
-        param.data.copy_(0.1 * torch.ones_like(param.data))
+torch_net_fa = MNISTThreeLayerFeedbackAlignmentNetworkReLU(n_hidden, 0).to(device)
+torch_net_fa_reg = get_network_with_reg(torch_net_fa, n_hidden, 0.1)
 align_array = []
 loss_array = []
 accuracy_array = []
