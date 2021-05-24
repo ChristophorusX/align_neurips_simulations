@@ -231,7 +231,7 @@ if __name__ == '__main__':
         step = 10e-2
         n_step = 5000
         reg_step = 2000
-        n_iter = 3
+        n_iter = 10
         # p_start = 5000
         # p_end = 6000
         # p_step = 1000

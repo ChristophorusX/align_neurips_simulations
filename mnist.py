@@ -219,8 +219,8 @@ def get_mnist_align_df(n_epochs, n_hidden, lr, reg_levels):
     return align_df, performance_df
 
 
-def plot_mnist(align_df, performance_df, filename):
-    custom_palette = sns.color_palette("CMRmap_r", 2)
+def plot_mnist(align_df, performance_df, filename, n_category=4):
+    custom_palette = sns.color_palette("CMRmap_r", n_category)
     fig = plt.figure()
     ax1 = plt.subplot(211)
     ax2 = plt.subplot(212)
@@ -241,4 +241,4 @@ if __name__ == '__main__':
     align_df, performance_df = get_mnist_align_df(n_epochs, n_hidden, lr, reg_levels)
     align_df.to_csv('dataframes/df_mnist_align_3l.csv', index=False)
     performance_df.to_csv('dataframes/df_mnist_performance_3l.csv', index=False)
-    plot_mnist(align_df, performance_df, 'outputs/mnist_3l.pdf')
+    plot_mnist(align_df, performance_df, 'outputs/mnist_3l.pdf', len(reg_levels))
