@@ -128,7 +128,8 @@ def get_autograd_align_df(n, d, p_list, reg_list, activation, synthetic_data, st
 def plot_align(df, filename):
     custom_palette = sns.color_palette("CMRmap_r", 4)
     align_plot = sns.lineplot(x=r"$p$ Hidden Layer Width", y='Alignment',
-                              hue=r"Regularization $\lambda$", data=df, legend="full", palette=custom_palette)
+                              hue=r"Regularization $\lambda$", err_style="bars",
+                              ci='sd', data=df, legend="full", palette=custom_palette)
     align_fig = align_plot.get_figure()
     align_fig.savefig(filename)
 
@@ -220,12 +221,14 @@ if __name__ == '__main__':
         # p_end = 10000
         # p_step = 1000
         # p_list = np.arange(start=p_start, stop=p_end + p_step, step=p_step)
-        p_list = [300, 600]
+        p_list = [300, 600, 1200]
         reg_list = [0, 0.5, 1, 1.5]
         df_lr = get_autograd_align_df(
             n, d, p_list, reg_list, 'non', 'lr', step, n_step, n_iter)
-        plot_align(df_lr, "outputs/align_{}_{}_{}_{}.pdf".format(args.data, args.network, args.scheme, args.regularization))
-        df_lr.to_csv("dataframes/df_{}_{}_{}_{}.csv".format(args.data, args.network, args.scheme, args.regularization), index=False)
+        plot_align(df_lr, "outputs/align_{}_{}_{}_{}.pdf".format(args.data,
+                   args.network, args.scheme, args.regularization))
+        df_lr.to_csv("dataframes/df_{}_{}_{}_{}.csv".format(args.data,
+                     args.network, args.scheme, args.regularization), index=False)
 
     # Generate alignment plot for autograd relu network and nn data with dropout
     if args.data == 'nn' and args.network == 'relu' and args.scheme == 'autograd' and args.regularization == 'dropout':
