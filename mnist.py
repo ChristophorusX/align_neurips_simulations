@@ -8,6 +8,7 @@ import fa_autograd
 import torchvision
 from torchvision import datasets, transforms
 import matplotlib.pyplot as plt
+import seaborn as sns
 from matplotlib import rc
 plt.style.use('ggplot')
 # plt.rcParams.update({'font.size': 28})
@@ -169,49 +170,75 @@ def get_network_with_reg(torch_net_fa, n_hidden, reg):
     return torch_net_fa_reg
 
 
-n_hidden = 1000
-lr = 1e-4
-n_epochs = 1
-transform = transforms.Compose(
-    [transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,))])
-mnist_trainset = datasets.MNIST(
-    root='./data', train=True, download=True, transform=transform)
-mnist_testset = datasets.MNIST(
-    root='./data', train=False, download=True, transform=transform)
-torch_net_fa = MNISTThreeLayerFeedbackAlignmentNetworkReLU(n_hidden, 0).to(device)
-torch_net_fa_reg = get_network_with_reg(torch_net_fa, n_hidden, 0.1)
-align_array = []
-loss_array = []
-accuracy_array = []
-train_epoch_fa(torch_net_fa, mnist_trainset, mnist_testset, n_epochs, lr,
-               align_array, loss_array, accuracy_array)
-# align_plot = plt.plot(np.arange(n_epochs * len(mnist_trainset)), align_array, label='Two Layer ReLU')
-# accuracy_plot = plt.plot(np.arange(len(accuracy_array)), accuracy_array)
-align_array_reg = []
-loss_array_reg = []
-accuracy_array_reg = []
-train_epoch_fa(torch_net_fa_reg, mnist_trainset, mnist_testset, n_epochs, lr,
-               align_array_reg, loss_array_reg, accuracy_array_reg)
-fig = plt.figure()
-ax1 = plt.subplot(211)
-ax1.plot(np.arange(n_epochs * len(mnist_trainset)), align_array,
-         np.arange(n_epochs * len(mnist_trainset)), align_array_reg)
-ax2 = plt.subplot(212)
-ax2.plot(np.arange(len(accuracy_array)), accuracy_array,
-         np.arange(len(accuracy_array_reg)), accuracy_array_reg)
-fig.savefig('mnist_alignment_relu.pdf')
-# align_plot = plt.plot(np.arange(n_epochs * len(mnist_trainset)), align_array,
-#                       np.arange(n_epochs * len(mnist_trainset)), align_array_reg)
-# accuracy_plot = plt.plot(np.arange(len(accuracy_array)), accuracy_array, np.arange(
-#     len(accuracy_array_reg)), accuracy_array_reg)
-# plt.xlabel('# of samples')
-# plt.ylabel('Alignment')
-# plt.savefig('mnist_relu_alignment.pdf')
+def get_mnist_align_df(n_epochs, n_hidden, lr, reg_levels):
+    print("Preparing datasets...")
+    transform = transforms.Compose(
+        [transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,))])
+    mnist_trainset = datasets.MNIST(
+        root='./data', train=True, download=True, transform=transform)
+    mnist_testset = datasets.MNIST(
+        root='./data', train=False, download=True, transform=transform)
+    print("Preparing networks...")
+    net_list = []
+    torch_net_fa0 = MNISTThreeLayerFeedbackAlignmentNetworkReLU(
+        n_hidden, 0).to(device)
+    net_list.append(torch_net_fa0)
+    for reg in reg_levels:
+        torch_net_fa_reg = get_network_with_reg(torch_net_fa0, n_hidden, reg)
+        net_list.append(torch_net_fa_reg)
+    print("Generating dataframes...")
+    reg_align_df = []
+    reg_performance_df = []
+    zipped_list = zip(reg_levels, net_list)
+    for reg, torch_net_fa in zipped_list:
+        print("Working on regularization level {}".format(reg))
+        align_array = []
+        loss_array = []
+        accuracy_array = []
+        train_epoch_fa(torch_net_fa, mnist_trainset, mnist_testset, n_epochs, lr,
+                       align_array, loss_array, accuracy_array)
+        align_array = np.array(align_array)
+        align_array
+        reg_index = np.repeat(reg, align_array.shape[0])
+        step_index = np.arange(align_array.shape[0]) * 1000
+        combined_table = np.vstack((align_array.T, reg_index, step_index)).T
+        align_df = pd.DataFrame(data=combined_table, columns=[
+                                "Second Layer Alignment", 'Third Layer Alignment', r"Regularization $\lambda$", "Step"])
+        reg_align_df.append(align_df)
+        accuracy_array = np.array(accuracy_array)
+        loss_array = np.array(loss_array)
+        reg_index = np.repeat(reg, accuracy_array.shape[0])
+        step_index = np.arange(accuracy_array.shape[0]) * 1000
+        performance_table = np.vstack(
+            (loss_array, accuracy_array, reg_index, step_index)).T
+        performance_df = pd.DataFrame(data=performance_table, columns=[
+                                      "Loss", "Accuracy", r"Regularization $\lambda$", "Step"])
+        reg_performance_df.append(performance_df)
+    align_df = pd.concat(reg_align_df)
+    performance_df = pd.concat(reg_performance_df)
+    return align_df, performance_df
 
-align_array = np.array(align_array)
-align_array
-reg_index = np.repeat(0, align_array.shape[0])
-combined_table = np.vstack((align_array.T, reg_index)).T
-align_df = pd.DataFrame(data=combined_table, columns=[
-                        "Second Layer Alignment", 'Third Layer Alignment', r"Regularization $\lambda$"])
-align_df
+
+def plot_mnist(align_df, performance_df, filename):
+    custom_palette = sns.color_palette("CMRmap_r", 2)
+    fig = plt.figure()
+    ax1 = plt.subplot(211)
+    ax2 = plt.subplot(212)
+    sns.lineplot(x='Step', y='Second Layer Alignment',
+                 hue=r"Regularization $\lambda$", data=align_df, legend="full",
+                 palette=custom_palette, ax=ax1)
+    sns.lineplot(x='Step', y='Accuracy',
+                 hue=r"Regularization $\lambda$", data=performance_df, legend="full",
+                 palette=custom_palette, ax=ax2)
+    fig.savefig(filename)
+
+
+if __name__ == '__main__':
+    n_hidden = 1000
+    lr = 1e-4
+    n_epochs = 1
+    reg_levels = [0, 1]
+    align_df, performance_df = get_mnist_align_df(n_epochs, n_hidden, lr, reg_levels)
+    align_df.to_csv('dataframes/df_mnist_align_3l.csv', index=False)
+    performance_df.to_csv('dataframes/df_mnist_performance_3l.csv', index=False)
+    plot_mnist(align_df, performance_df, 'outputs/mnist_3l.pdf')
