@@ -170,7 +170,7 @@ def get_network_with_reg(torch_net_fa, n_hidden, reg):
     return torch_net_fa_reg
 
 
-def get_mnist_align_df(n_epochs, n_hidden, lr, reg_levels):
+def get_mnist_align_df(n_epochs, n_hidden, lr, reg_levels, n_layers=3):
     print("Preparing datasets...")
     transform = transforms.Compose(
         [transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,))])
@@ -180,8 +180,14 @@ def get_mnist_align_df(n_epochs, n_hidden, lr, reg_levels):
         root='./data', train=False, download=True, transform=transform)
     print("Preparing networks...")
     net_list = []
-    torch_net_fa0 = MNISTThreeLayerFeedbackAlignmentNetworkReLU(
-        n_hidden, 0).to(device)
+    if n_layers == 2:
+        print("Fitting two-layer networks...")
+        torch_net_fa0 = MNISTTwoLayerFeedbackAlignmentNetworkReLU(
+            n_hidden, 0).to(device)
+    else:
+        print("Fitting three-layer networks...")
+        torch_net_fa0 = MNISTThreeLayerFeedbackAlignmentNetworkReLU(
+            n_hidden, 0).to(device)
     net_list.append(torch_net_fa0)
     for reg in reg_levels:
         torch_net_fa_reg = get_network_with_reg(torch_net_fa0, n_hidden, reg)
@@ -202,8 +208,12 @@ def get_mnist_align_df(n_epochs, n_hidden, lr, reg_levels):
         reg_index = np.repeat(reg, align_array.shape[0])
         step_index = np.arange(align_array.shape[0]) * 1000
         combined_table = np.vstack((align_array.T, reg_index, step_index)).T
-        align_df = pd.DataFrame(data=combined_table, columns=[
-                                "Second Layer Alignment", 'Third Layer Alignment', r"Regularization $\lambda$", "Step"])
+        if n_layers == 2:
+            align_df = pd.DataFrame(data=combined_table, columns=[
+                                    "Second Layer Alignment", r"Regularization $\lambda$", "Step"])
+        else:
+            align_df = pd.DataFrame(data=combined_table, columns=[
+                                    "Second Layer Alignment", 'Third Layer Alignment', r"Regularization $\lambda$", "Step"])
         reg_align_df.append(align_df)
         accuracy_array = np.array(accuracy_array)
         loss_array = np.array(loss_array)
@@ -219,18 +229,34 @@ def get_mnist_align_df(n_epochs, n_hidden, lr, reg_levels):
     return align_df, performance_df
 
 
-def plot_mnist(align_df, performance_df, filename, n_category=4):
+def plot_mnist(align_df, performance_df, filename, n_category=4, n_layers=3):
     custom_palette = sns.color_palette("CMRmap_r", n_category)
-    fig = plt.figure()
-    ax1 = plt.subplot(211)
-    ax2 = plt.subplot(212)
-    sns.lineplot(x='Step', y='Second Layer Alignment',
-                 hue=r"Regularization $\lambda$", data=align_df, legend="full",
-                 palette=custom_palette, ax=ax1)
-    sns.lineplot(x='Step', y='Accuracy',
-                 hue=r"Regularization $\lambda$", data=performance_df, legend="full",
-                 palette=custom_palette, ax=ax2)
-    fig.savefig(filename)
+    if n_layers == 2:
+        fig = plt.figure(figsize=(8, 12))
+        ax1 = plt.subplot(211)
+        ax2 = plt.subplot(212)
+        sns.lineplot(x='Step', y='Second Layer Alignment',
+                     hue=r"Regularization $\lambda$", data=align_df, legend="full",
+                     palette=custom_palette, ax=ax1)
+        sns.lineplot(x='Step', y='Accuracy',
+                     hue=r"Regularization $\lambda$", data=performance_df, legend="full",
+                     palette=custom_palette, ax=ax2)
+        fig.savefig(filename)
+    else:
+        fig = plt.figure(figsize=(8, 18))
+        ax1 = plt.subplot(311)
+        ax2 = plt.subplot(312)
+        ax3 = plt.subplot(313)
+        sns.lineplot(x='Step', y='Second Layer Alignment',
+                     hue=r"Regularization $\lambda$", data=align_df, legend="full",
+                     palette=custom_palette, ax=ax1)
+        sns.lineplot(x='Step', y='Third Layer Alignment',
+                     hue=r"Regularization $\lambda$", data=align_df, legend="full",
+                     palette=custom_palette, ax=ax2)
+        sns.lineplot(x='Step', y='Accuracy',
+                     hue=r"Regularization $\lambda$", data=performance_df, legend="full",
+                     palette=custom_palette, ax=ax3)
+        fig.savefig(filename)
 
 
 if __name__ == '__main__':
@@ -238,7 +264,10 @@ if __name__ == '__main__':
     lr = 1e-4
     n_epochs = 1
     reg_levels = [0, 1]
-    align_df, performance_df = get_mnist_align_df(n_epochs, n_hidden, lr, reg_levels)
-    align_df.to_csv('dataframes/df_mnist_align_3l.csv', index=False)
-    performance_df.to_csv('dataframes/df_mnist_performance_3l.csv', index=False)
-    plot_mnist(align_df, performance_df, 'outputs/mnist_3l.pdf', len(reg_levels))
+    align_df, performance_df = get_mnist_align_df(
+        n_epochs, n_hidden, lr, reg_levels, n_layers=2)
+    align_df.to_csv('dataframes/df_mnist_align_2l.csv', index=False)
+    performance_df.to_csv(
+        'dataframes/df_mnist_performance_2l.csv', index=False)
+    plot_mnist(align_df, performance_df,
+               'outputs/mnist_2l.pdf', len(reg_levels), n_layers=2)
