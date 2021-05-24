@@ -9,11 +9,11 @@ import seaborn as sns
 import argparse
 import matplotlib.pyplot as plt
 from matplotlib import rc
-# plt.style.use('ggplot')
+plt.style.use('ggplot')
 # plt.rcParams.update({'font.size': 28})
 # plt.rcParams["figure.figsize"] = (9, 9)
 # rc('font', **{'family': 'serif', 'serif': ['Latin Modern Roman']})
-# rc('text', usetex=True)
+rc('text', usetex=True)
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 print(device)
 
