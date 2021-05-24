@@ -239,7 +239,7 @@ if __name__ == '__main__':
         p_list = [1000, 1200]
         reg_list = [0, 0.01, 0.1]
         df_sigmoid = get_autograd_align_df(
-            n, d, p_list, reg_list, 'sigmoid', 'nn', step, n_step, n_iter)
+            n, d, p_list, reg_list, 'sigmoid', 'nn', step, n_step, reg_step, n_iter)
         plot_align(df_lr, "outputs/align_{}_{}_{}_{}.pdf".format(args.data,
                    args.network, args.scheme, args.regularization))
         df_lr.to_csv("dataframes/df_{}_{}_{}_{}.csv".format(args.data,
