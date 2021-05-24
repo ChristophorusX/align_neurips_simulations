@@ -129,7 +129,8 @@ def plot_align(df, filename):
     custom_palette = sns.color_palette("CMRmap_r", 4)
     align_plot = sns.lineplot(x=r"$p$ Hidden Layer Width", y='Alignment',
                               hue=r"Regularization $\lambda$", err_style="bars",
-                              ci='sd', data=df, legend="full", palette=custom_palette)
+                              ci='sd', data=df, legend="full", markers=True,
+                              palette=custom_palette)
     align_fig = align_plot.get_figure()
     align_fig.savefig(filename)
 
