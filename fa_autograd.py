@@ -49,6 +49,53 @@ class RegLinear(nn.Module):
         return reg_linear(input, self.weight, self.backprop_weight, self.regularization)
 
 
+class FeedbackAlignmentFunctionRegReLU(Function):
+    @staticmethod
+    def forward(ctx, input, weight, backprop_weight, regularization):
+        activation = torch.relu
+        ctx.save_for_backward(input, weight, backprop_weight, regularization)
+        output = activation(input.mm(weight.t()))
+        return output
+
+    @staticmethod
+    def backward(ctx, grad_output):
+        input, weight, backprop_weight, regularization = ctx.saved_variables
+        grad_input = grad_weight = grad_backprop_weight = grad_regularization = None
+        def act_derivative(x): return torch.relu(torch.sign(x))
+        if ctx.needs_input_grad[0]:
+            grad_input = (act_derivative(input.mm(weight.t()))
+                          * grad_output).mm(backprop_weight)
+        if ctx.needs_input_grad[1]:
+            grad_weight = (act_derivative(input.mm(weight.t())).t(
+            ) * grad_output.t()).mm(input) + regularization * weight
+
+        return grad_input, grad_weight, grad_backprop_weight, grad_regularization
+
+
+fa_function_reg_relu = FeedbackAlignmentFunctionRegReLU.apply
+
+
+class FeedbackAlignmentRegReLU(nn.Module):
+    def __init__(self, input_features, output_features, regularization=0):
+        super(FeedbackAlignmentRegReLU, self).__init__()
+        self.input_features = input_features
+        self.output_features = output_features
+
+        self.weight = nn.Parameter(
+            torch.Tensor(output_features, input_features))
+        self.backprop_weight = nn.Parameter(Variable(torch.FloatTensor(
+            output_features, input_features), requires_grad=False))
+        self.regularization = nn.Parameter(Variable(
+            regularization * torch.ones_like(self.weight), requires_grad=False))
+
+        # weight initialization
+        torch.nn.init.normal_(self.weight)
+        torch.nn.init.normal_(self.backprop_weight)
+
+    def forward(self, input):
+        return fa_function_reg_relu(input, self.weight, self.backprop_weight, self.regularization)
+
+
 class FeedbackAlignmentFunctionReLU(Function):
     @staticmethod
     def forward(ctx, input, weight, backprop_weight):
@@ -106,7 +153,8 @@ class FeedbackAlignmentFunctionSigmoid(Function):
     def backward(ctx, grad_output):
         input, weight, backprop_weight = ctx.saved_variables
         grad_input = grad_weight = grad_backprop_weight = None
-        def act_derivative(x): return torch.sigmoid(x) * (torch.ones_like(x) - torch.sigmoid(x))
+        def act_derivative(x): return torch.sigmoid(
+            x) * (torch.ones_like(x) - torch.sigmoid(x))
         if ctx.needs_input_grad[0]:
             grad_input = (act_derivative(input.mm(weight.t()))
                           * grad_output).mm(backprop_weight)
