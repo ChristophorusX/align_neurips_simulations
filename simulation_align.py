@@ -131,7 +131,7 @@ def plot_align(df, filename):
     ax.set(xscale="log")
     align_plot = sns.lineplot(x=r"$p$ Hidden Layer Width", y='Alignment',
                               hue=r"Regularization $\lambda$", err_style="bars",
-                              ci='sd', data=df, legend="full", markers=True,
+                              ci='sd', data=df, legend="full", markers='o',
                               palette=custom_palette, ax=ax)
     align_fig = align_plot.get_figure()
     align_fig.savefig(filename)
