@@ -88,7 +88,7 @@ def get_autograd_align_df(n, d, p_list, reg_list, activation, synthetic_data, st
                 y_torch = torch.FloatTensor(y).unsqueeze(1).to(device)
                 reg_flag = True
                 for t in range(n_step):
-                    if reg_flag == True and t > reg_step:
+                    if reg_flag == True and t >= reg_step - 1:
                         print("Stop regularization at step {}".format(t))
                         reg_flag = False
                         for name, param in torch_net_fa.named_parameters():
