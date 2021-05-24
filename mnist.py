@@ -232,7 +232,7 @@ def get_mnist_align_df(n_epochs, n_hidden, lr, reg_levels, n_layers=3):
 def plot_mnist(align_df, performance_df, filename, n_category=4, n_layers=3):
     custom_palette = sns.color_palette("CMRmap_r", n_category)
     if n_layers == 2:
-        fig = plt.figure()
+        fig = plt.figure(figsize=(8, 12))
         ax1 = plt.subplot(211)
         ax2 = plt.subplot(212)
         sns.lineplot(x='Step', y='Second Layer Alignment',
@@ -243,7 +243,7 @@ def plot_mnist(align_df, performance_df, filename, n_category=4, n_layers=3):
                      palette=custom_palette, ax=ax2)
         fig.savefig(filename)
     else:
-        fig = plt.figure()
+        fig = plt.figure(figsize=(8, 18))
         ax1 = plt.subplot(311)
         ax2 = plt.subplot(312)
         ax3 = plt.subplot(313)
@@ -266,8 +266,8 @@ if __name__ == '__main__':
     reg_levels = [0, 1]
     align_df, performance_df = get_mnist_align_df(
         n_epochs, n_hidden, lr, reg_levels, n_layers=2)
-    align_df.to_csv('dataframes/df_mnist_align_3l.csv', index=False)
+    align_df.to_csv('dataframes/df_mnist_align_2l.csv', index=False)
     performance_df.to_csv(
-        'dataframes/df_mnist_performance_3l.csv', index=False)
+        'dataframes/df_mnist_performance_2l.csv', index=False)
     plot_mnist(align_df, performance_df,
-               'outputs/mnist_3l.pdf', len(reg_levels), n_layers=2)
+               'outputs/mnist_2l.pdf', len(reg_levels), n_layers=2)
