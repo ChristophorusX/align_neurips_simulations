@@ -56,7 +56,7 @@ def get_align_df(n, d, p_list, reg_list, activation, synthetic_data, step, n_ste
     return df
 
 
-def get_autograd_align_df(n, d, p_list, reg_list, activation, synthetic_data, step, n_step, n_iter, drop_out=False):
+def get_autograd_align_df(n, d, p_list, reg_list, activation, synthetic_data, step, n_step, reg_step, n_iter, drop_out=False):
     reg_align_df = []
     for reg in reg_list:
         align_table = []
@@ -84,9 +84,16 @@ def get_autograd_align_df(n, d, p_list, reg_list, activation, synthetic_data, st
                 optimizer_fa = torch.optim.SGD(
                     torch_net_fa.parameters(), lr=step)
                 loss_fn_fa = nn.MSELoss()
+                X_torch = torch.FloatTensor(X).to(device)
                 y_torch = torch.FloatTensor(y).unsqueeze(1).to(device)
+                reg_flag = True
                 for t in range(n_step):
-                    X_torch = torch.FloatTensor(X).to(device)
+                    if reg_flag == True and t > reg_step:
+                        print("Stop regularization at step {}".format(t))
+                        reg_flag = False
+                        for name, param in torch_net_fa.named_parameters():
+                            if name == 'second_layer.regularization':
+                                param.data.copy_(torch.zeros_like(param.data))
                     pred = torch_net_fa.forward(X_torch)
                     loss = loss_fn_fa(pred, y_torch)
                     if t % (n_step / 5) == n_step / 5 - 1:
@@ -219,6 +226,7 @@ if __name__ == '__main__':
         n, d = (50, 150)
         step = 10e-4
         n_step = 5000
+        reg_step = 2000
         n_iter = 3
         # p_start = 5000
         # p_end = 10000
@@ -227,7 +235,7 @@ if __name__ == '__main__':
         p_list = [300, 600, 1200]
         reg_list = [0, 0.5, 1, 1.5]
         df_lr = get_autograd_align_df(
-            n, d, p_list, reg_list, 'non', 'lr', step, n_step, n_iter)
+            n, d, p_list, reg_list, 'non', 'lr', step, n_step, reg_step, n_iter)
         plot_align(df_lr, "outputs/align_{}_{}_{}_{}.pdf".format(args.data,
                    args.network, args.scheme, args.regularization))
         df_lr.to_csv("dataframes/df_{}_{}_{}_{}.csv".format(args.data,
