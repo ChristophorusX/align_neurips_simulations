@@ -127,10 +127,12 @@ def get_autograd_align_df(n, d, p_list, reg_list, activation, synthetic_data, st
 
 def plot_align(df, filename):
     custom_palette = sns.color_palette("CMRmap_r", 4)
+    fig, ax = plt.subplots()
+    ax.set(xscale="log")
     align_plot = sns.lineplot(x=r"$p$ Hidden Layer Width", y='Alignment',
                               hue=r"Regularization $\lambda$", err_style="bars",
                               ci='sd', data=df, legend="full", markers=True,
-                              palette=custom_palette)
+                              palette=custom_palette, ax=ax)
     align_fig = align_plot.get_figure()
     align_fig.savefig(filename)
 
