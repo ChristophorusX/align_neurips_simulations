@@ -71,9 +71,9 @@ def train_epoch_fa(torch_net_fa, mnist_trainset, mnist_testset, align_array, los
         loss.backward()
         optimizer_fa.step()
         for name, param in torch_net_fa.named_parameters():
-            if name == 'third_layer.backprop_weight':
+            if name == 'second_layer.backprop_weight':
                 backprop_weight = param.data
-            if name == 'third_layer.weight':
+            if name == 'second_layer.weight':
                 second_layer_weight = param.data
         align = torch.tensordot(backprop_weight, second_layer_weight) / \
             torch.norm(backprop_weight) / \
@@ -106,7 +106,7 @@ transform = transforms.Compose(
 mnist_trainset = datasets.MNIST(
     root='./data', train=True, download=True, transform=transform)
 mnist_testset = datasets.MNIST(root='./data', train=False, download=True, transform=transform)
-torch_net_fa = MNISTThreeLayerFeedbackAlignmentNetworkReLU(1000, 0).to(device)
+torch_net_fa = MNISTTwoLayerFeedbackAlignmentNetworkReLU(1000, 0).to(device)
 torch_net_fa_reg = type(torch_net_fa)(1000, 0).to(device)
 torch_net_fa_reg.load_state_dict(torch_net_fa.state_dict())
 for name, param in torch_net_fa_reg.named_parameters():
