@@ -240,9 +240,9 @@ if __name__ == '__main__':
         reg_list = [0, 0.01, 0.1]
         df_sigmoid = get_autograd_align_df(
             n, d, p_list, reg_list, 'sigmoid', 'nn', step, n_step, reg_step, n_iter)
-        plot_align(df_lr, "outputs/align_{}_{}_{}_{}.pdf".format(args.data,
+        plot_align(df_sigmoid, "outputs/align_{}_{}_{}_{}.pdf".format(args.data,
                    args.network, args.scheme, args.regularization))
-        df_lr.to_csv("dataframes/df_{}_{}_{}_{}.csv".format(args.data,
+        df_sigmoid.to_csv("dataframes/df_{}_{}_{}_{}.csv".format(args.data,
                      args.network, args.scheme, args.regularization), index=False)
 
     # Generate alignment plot for autograd linear network and lr data
