@@ -1,5 +1,6 @@
 import torch
 import numpy as np
+import pandas as pd
 from torch import nn
 import torch.nn.functional as F
 from torch.autograd import Variable
@@ -89,7 +90,7 @@ def get_align_mnist(torch_net_fa):
         third_align = torch.tensordot(third_delta_fa, third_delta_bp) / \
             torch.norm(third_delta_fa) / torch.norm(third_delta_bp)
         third_align = third_align.cpu().data.detach().numpy().flatten()
-        return [second_align, third_align]
+        return np.array([second_align, third_align]).flatten()
     else:
         for name, param in torch_net_fa.named_parameters():
             if name == 'second_layer.backprop_weight':
@@ -199,10 +200,18 @@ ax2 = plt.subplot(212)
 ax2.plot(np.arange(len(accuracy_array)), accuracy_array,
          np.arange(len(accuracy_array_reg)), accuracy_array_reg)
 fig.savefig('mnist_alignment_relu.pdf')
-align_plot = plt.plot(np.arange(n_epochs * len(mnist_trainset)), align_array,
-                      np.arange(n_epochs * len(mnist_trainset)), align_array_reg)
-accuracy_plot = plt.plot(np.arange(len(accuracy_array)), accuracy_array, np.arange(
-    len(accuracy_array_reg)), accuracy_array_reg)
+# align_plot = plt.plot(np.arange(n_epochs * len(mnist_trainset)), align_array,
+#                       np.arange(n_epochs * len(mnist_trainset)), align_array_reg)
+# accuracy_plot = plt.plot(np.arange(len(accuracy_array)), accuracy_array, np.arange(
+#     len(accuracy_array_reg)), accuracy_array_reg)
 # plt.xlabel('# of samples')
 # plt.ylabel('Alignment')
 # plt.savefig('mnist_relu_alignment.pdf')
+
+align_array = np.array(align_array)
+align_array
+reg_index = np.repeat(0, align_array.shape[0])
+combined_table = np.vstack((align_array.T, reg_index)).T
+align_df = pd.DataFrame(data=combined_table, columns=[
+                        "Second Layer Alignment", 'Third Layer Alignment', r"Regularization $\lambda$"])
+align_df

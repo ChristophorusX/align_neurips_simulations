@@ -230,16 +230,19 @@ if __name__ == '__main__':
         n, d = (50, 150)
         step = 10e-2
         n_step = 5000
-        n_iter = 10
-        p_start = 5000
-        p_end = 6000
-        p_step = 1000
-        p_list = np.arange(start=p_start, stop=p_end + p_step, step=p_step)
+        reg_step = 2000
+        n_iter = 3
+        # p_start = 5000
+        # p_end = 6000
+        # p_step = 1000
+        # p_list = np.arange(start=p_start, stop=p_end + p_step, step=p_step)
         reg_list = [0, 0.01, 0.1]
         df_sigmoid = get_autograd_align_df(
             n, d, p_list, reg_list, 'sigmoid', 'nn', step, n_step, n_iter)
-        plot_align(df_sigmoid, 'outputs/align_autograd_sigmoid_fig_large.pdf')
-        df_sigmoid.to_csv('dataframes/df_sigmoid_large.csv', index=False)
+        plot_align(df_lr, "outputs/align_{}_{}_{}_{}.pdf".format(args.data,
+                   args.network, args.scheme, args.regularization))
+        df_lr.to_csv("dataframes/df_{}_{}_{}_{}.csv".format(args.data,
+                     args.network, args.scheme, args.regularization), index=False)
 
     # Generate alignment plot for autograd linear network and lr data
     if args.data == 'lr' and args.network == 'non' and args.scheme == 'autograd' and args.regularization == 'l2':
