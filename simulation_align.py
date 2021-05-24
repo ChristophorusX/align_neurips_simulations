@@ -153,8 +153,8 @@ def get_autograd_align_df(n, d, p_list, reg_list, activation, synthetic_data, st
     return df
 
 
-def plot_align(df, filename):
-    custom_palette = sns.color_palette("CMRmap_r", 4)
+def plot_align(df, filename, n_category=4):
+    custom_palette = sns.color_palette("CMRmap_r", n_category)
     fig, ax = plt.subplots()
     ax.set(xscale="log")
     align_plot = sns.lineplot(x=r"$p$ Hidden Layer Width", y='Alignment',
@@ -241,7 +241,7 @@ if __name__ == '__main__':
         df_sigmoid = get_autograd_align_df(
             n, d, p_list, reg_list, 'sigmoid', 'nn', step, n_step, reg_step, n_iter)
         plot_align(df_sigmoid, "outputs/align_{}_{}_{}_{}.pdf".format(args.data,
-                   args.network, args.scheme, args.regularization))
+                   args.network, args.scheme, args.regularization), len(reg_list))
         df_sigmoid.to_csv("dataframes/df_{}_{}_{}_{}.csv".format(args.data,
                      args.network, args.scheme, args.regularization), index=False)
 
@@ -262,7 +262,7 @@ if __name__ == '__main__':
         df_lr = get_autograd_align_df(
             n, d, p_list, reg_list, 'non', 'lr', step, n_step, reg_step, n_iter)
         plot_align(df_lr, "outputs/align_{}_{}_{}_{}.pdf".format(args.data,
-                   args.network, args.scheme, args.regularization))
+                   args.network, args.scheme, args.regularization), len(reg_list))
         df_lr.to_csv("dataframes/df_{}_{}_{}_{}.csv".format(args.data,
                      args.network, args.scheme, args.regularization), index=False)
 
