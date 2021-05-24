@@ -56,7 +56,37 @@ def get_align_df(n, d, p_list, reg_list, activation, synthetic_data, step, n_ste
     return df
 
 
-def get_autograd_align_df(n, d, p_list, reg_list, activation, synthetic_data, step, n_step, reg_step, n_iter, drop_out=False):
+def get_network(d, p, activation, reg, dropout):
+    if activation == 'relu':
+        if dropout:
+            torch_net_fa = net_autograd.TwoLayerFeedbackAlignmentDropoutNetworkReLU(
+                d, p, reg)
+            return torch_net_fa
+        else:
+            torch_net_fa = net_autograd.TwoLayerFeedbackAlignmentNetworkReLU(
+                d, p, reg)
+            return torch_net_fa
+    elif activation == 'sigmoid':
+        if dropout:
+            torch_net_fa = net_autograd.TwoLayerFeedbackAlignmentDropoutNetworkSigmoid(
+                d, p, reg)
+            return torch_net_fa
+        else:
+            torch_net_fa = net_autograd.TwoLayerFeedbackAlignmentNetworkSigmoid(
+                d, p, reg)
+            return torch_net_fa
+    elif activation == 'non':
+        if dropout:
+            torch_net_fa = net_autograd.TwoLayerFeedbackAlignmentDropoutNetworkLinear(
+                d, p, reg)
+            return torch_net_fa
+        else:
+            torch_net_fa = net_autograd.TwoLayerFeedbackAlignmentNetworkLinear(
+                d, p, reg)
+            return torch_net_fa
+
+
+def get_autograd_align_df(n, d, p_list, reg_list, activation, synthetic_data, step, n_step, reg_step, n_iter, dropout=False):
     reg_align_df = []
     for reg in reg_list:
         align_table = []
@@ -67,19 +97,7 @@ def get_autograd_align_df(n, d, p_list, reg_list, activation, synthetic_data, st
                     X, y = data_gen.lr_data(n, d)
                 elif synthetic_data == 'nn':
                     X, y = data_gen.rand_nn_data(n, d, p, activation)
-                if activation == 'relu':
-                    if drop_out:
-                        torch_net_fa = net_autograd.TwoLayerFeedbackAlignmentDropoutNetworkReLU(
-                            d, p, reg)
-                    else:
-                        torch_net_fa = net_autograd.TwoLayerFeedbackAlignmentNetworkReLU(
-                            d, p, reg)
-                elif activation == 'sigmoid':
-                    torch_net_fa = net_autograd.TwoLayerFeedbackAlignmentNetworkSigmoid(
-                        d, p, reg)
-                elif activation == 'non':
-                    torch_net_fa = net_autograd.TwoLayerFeedbackAlignmentNetworkLinear(
-                        d, p, reg)
+                torch_net_fa = get_network(d, p, activation, reg, dropout)
                 torch_net_fa.to(device)
                 optimizer_fa = torch.optim.SGD(
                     torch_net_fa.parameters(), lr=step)
@@ -257,6 +275,6 @@ if __name__ == '__main__':
         p_list = np.arange(start=p_start, stop=p_end + p_step, step=p_step)
         reg_list = [0, 0.3, 0.6]
         df_relu = get_autograd_align_df(
-            n, d, p_list, reg_list, 'relu', 'nn', step, n_step, n_iter, drop_out=True)
+            n, d, p_list, reg_list, 'relu', 'nn', step, n_step, n_iter, dropout=True)
         plot_align(df_relu, 'outputs/align_autograd_relu_dropout_fig_large.pdf')
         df_relu.to_csv('dataframes/df_relu_dropout_large.csv', index=False)
