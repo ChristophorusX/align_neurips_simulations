@@ -104,45 +104,55 @@ def get_align_mnist(torch_net_fa):
         return align.cpu().data.detach().numpy().flatten()
 
 
-def train_epoch_fa(torch_net_fa, mnist_trainset, mnist_testset, align_array, loss_array, accuracy_array):
-    train_loader = torch.utils.data.DataLoader(mnist_trainset)
-    test_loader = torch.utils.data.DataLoader(mnist_testset)
-    optimizer_fa = torch.optim.SGD(torch_net_fa.parameters(), lr=10e-4)
-    for batch_idx, (data, target) in enumerate(train_loader):
-        # torch_net_fa.train()
-        data = data.flatten().unsqueeze(0).to(device)
-        target = target.to(device)
-        optimizer_fa.zero_grad()
-        output = torch_net_fa(data)
-        loss = F.nll_loss(output, target)
-        torch_net_fa.prediction.retain_grad()
-        for name, param in torch_net_fa.named_parameters():
-            if name == 'third_layer.backprop_weight':
-                torch_net_fa.hidden2.retain_grad()
-        loss.backward()
-        optimizer_fa.step()
-        align = get_align_mnist(torch_net_fa)
-        align_array.append(align)
-        if batch_idx % 1000 == 999:
-            print(align)
-            # torch_net_fa.eval()
-            test_loss = 0
-            n_correct = 0
-            with torch.no_grad():
-                for data_test, target_test in test_loader:
-                    data_test = data_test.flatten().unsqueeze(0).to(device)
-                    target_test = target_test.to(device)
-                    output_test = torch_net_fa(data_test)
-                    test_loss += F.nll_loss(output_test,
-                                            target_test, reduction='sum').item()
-                    pred_test = output_test.argmax(dim=1, keepdim=True)
-                    n_correct += pred_test.eq(
-                        target_test.view_as(pred_test)).sum().item()
-            test_loss /= len(test_loader.dataset)
-            accuracy = n_correct / len(test_loader.dataset)
-            loss_array.append(test_loss)
-            accuracy_array.append(accuracy)
-            print(batch_idx, test_loss, accuracy)
+def train_epoch_fa(torch_net_fa, mnist_trainset, mnist_testset, n_epochs, lr, align_array, loss_array, accuracy_array, reg_arr=None):
+    reg_cnt = 0
+    for epo in range(n_epochs):
+        train_loader = torch.utils.data.DataLoader(mnist_trainset)
+        test_loader = torch.utils.data.DataLoader(mnist_testset)
+        optimizer_fa = torch.optim.SGD(torch_net_fa.parameters(), lr=lr)
+        for batch_idx, (data, target) in enumerate(train_loader):
+            # torch_net_fa.train()
+            data = data.flatten().unsqueeze(0).to(device)
+            target = target.to(device)
+            if reg_arr is not None:
+                reg = reg_arr[reg_cnt]
+                for name, param in torch_net_fa.named_parameters():
+                    if name == 'second_layer.regularization':
+                        param.data.copy_(reg * torch.ones_like(param.data))
+                    if name == 'third_layer.regularization':
+                        param.data.copy_(reg * torch.ones_like(param.data))
+            optimizer_fa.zero_grad()
+            output = torch_net_fa(data)
+            loss = F.nll_loss(output, target)
+            torch_net_fa.prediction.retain_grad()
+            for name, param in torch_net_fa.named_parameters():
+                if name == 'third_layer.backprop_weight':
+                    torch_net_fa.hidden2.retain_grad()
+            loss.backward()
+            optimizer_fa.step()
+            align = get_align_mnist(torch_net_fa)
+            align_array.append(align)
+            reg_cnt = reg_cnt + 1
+            if batch_idx % 1000 == 999:
+                print(align)
+                # torch_net_fa.eval()
+                test_loss = 0
+                n_correct = 0
+                with torch.no_grad():
+                    for data_test, target_test in test_loader:
+                        data_test = data_test.flatten().unsqueeze(0).to(device)
+                        target_test = target_test.to(device)
+                        output_test = torch_net_fa(data_test)
+                        test_loss += F.nll_loss(output_test,
+                                                target_test, reduction='sum').item()
+                        pred_test = output_test.argmax(dim=1, keepdim=True)
+                        n_correct += pred_test.eq(
+                            target_test.view_as(pred_test)).sum().item()
+                test_loss /= len(test_loader.dataset)
+                accuracy = n_correct / len(test_loader.dataset)
+                loss_array.append(test_loss)
+                accuracy_array.append(accuracy)
+                print(batch_idx, test_loss, accuracy)
 
 
 def get_network_with_reg(torch_net_fa, n_hidden, reg):
@@ -159,6 +169,7 @@ def get_network_with_reg(torch_net_fa, n_hidden, reg):
 
 
 n_hidden = 1000
+lr = 1e-4
 n_epochs = 1
 transform = transforms.Compose(
     [transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,))])
@@ -171,17 +182,15 @@ torch_net_fa_reg = get_network_with_reg(torch_net_fa, n_hidden, 0.1)
 align_array = []
 loss_array = []
 accuracy_array = []
-for epoch in range(n_epochs):
-    train_epoch_fa(torch_net_fa, mnist_trainset, mnist_testset,
-                   align_array, loss_array, accuracy_array)
+train_epoch_fa(torch_net_fa, mnist_trainset, mnist_testset, n_epochs, lr,
+               align_array, loss_array, accuracy_array)
 # align_plot = plt.plot(np.arange(n_epochs * len(mnist_trainset)), align_array, label='Two Layer ReLU')
 # accuracy_plot = plt.plot(np.arange(len(accuracy_array)), accuracy_array)
 align_array_reg = []
 loss_array_reg = []
 accuracy_array_reg = []
-for epoch in range(n_epochs):
-    train_epoch_fa(torch_net_fa_reg, mnist_trainset, mnist_testset,
-                   align_array_reg, loss_array_reg, accuracy_array_reg)
+train_epoch_fa(torch_net_fa_reg, mnist_trainset, mnist_testset, n_epochs, lr,
+               align_array_reg, loss_array_reg, accuracy_array_reg)
 fig = plt.figure()
 ax1 = plt.subplot(211)
 ax1.plot(np.arange(n_epochs * len(mnist_trainset)), align_array,
