@@ -112,9 +112,12 @@ def get_autograd_align_df(n, d, p_list, reg_list, activation, synthetic_data, st
                     if reg_flag is True and t >= reg_step - 1:
                         print("Stop regularization at step {}".format(t))
                         reg_flag = False
-                        for name, param in torch_net_fa.named_parameters():
-                            if name == 'second_layer.regularization':
-                                param.data.copy_(torch.zeros_like(param.data))
+                        if dropout:
+                            torch_net_fa.drop = nn.Dropout(0)
+                        else:
+                            for name, param in torch_net_fa.named_parameters():
+                                if name == 'second_layer.regularization':
+                                    param.data.copy_(torch.zeros_like(param.data))
                     pred = torch_net_fa.forward(X_torch)
                     loss = loss_fn_fa(pred, y_torch)
                     if t % (n_step / 5) == n_step / 5 - 1:
