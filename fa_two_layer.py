@@ -97,7 +97,7 @@ class TwoLayerNetwork(object):
                     self.H_activated, self.beta) / np.sqrt(self.p)
                 current_loss = 0.5 * torch.sum((y - self.f)**2) / np.sqrt(self.n)
                 loss.append(current_loss)
-                if t % (n_steps / 5) == 0:
+                if t % (n_steps // 5) == 0:
                     print("iteration %d: TRAINING loss %f" % (t, current_loss))
                 e = self.f - y
                 grad_beta = torch.matmul(

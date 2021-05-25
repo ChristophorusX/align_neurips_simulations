@@ -24,7 +24,7 @@ def get_align_df(n, d, p_list, reg_list, activation, synthetic_data, step, n_ste
         align_table = []
         for p in p_list:
             align_array = []
-            for iter in range(n_iter):
+            for iter in np.arange(n_iter):
                 if synthetic_data == 'lr':
                     X, y = data_gen.lr_data(n, d)
                 elif synthetic_data == 'nn':
@@ -32,7 +32,7 @@ def get_align_df(n, d, p_list, reg_list, activation, synthetic_data, step, n_ste
                 seed = np.random.randint(100000)
                 net = fa_two_layer.TwoLayerNetwork(activation, d, p, n, seed)
                 loss_fa, beta, b = net.feedback_alignment(
-                    X, y, step, regular=reg, n_steps=n_step)
+                    X, y, step, regular=reg, n_steps=np.rint(n_step * np.sqrt(p) // 10))
                 align = np.inner(beta, b) / \
                     np.linalg.norm(beta) / np.linalg.norm(b)
                 align_array.append(align)
@@ -205,11 +205,11 @@ if __name__ == '__main__':
         # p_end = 1000
         # p_step = 25
         # p_list = np.arange(start=p_start, stop=p_end + p_step, step=p_step)
-        p_list = [10000, 20000, 100000]
+        p_list = [500, 2000, 10000]
         reg_list = [0, 5, 10]
         df_lr = get_align_df(n, d, p_list, reg_list, 'non',
                              'lr', step, n_step, n_iter)
-        plot_align(df_lr, 'outputs/align_lr_fig_large_v3.pdf', len(reg_list))
+        plot_align(df_lr, 'outputs/align_lr_fig_large_v4.pdf', len(reg_list))
 
     # Generate alignment plot for autograd relu network and nn data
     if args.data == 'nn' and args.network == 'relu' and args.scheme == 'autograd' and args.regularization == 'l2':
