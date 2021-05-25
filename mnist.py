@@ -197,8 +197,6 @@ def get_mnist_align_df(n_epochs, n_hidden, lr, reg_levels, n_layers=3):
     reg_performance_df = []
     zipped_list = zip(reg_levels, net_list)
     for reg, torch_net_fa in zipped_list:
-        if reg == 0:
-            continue
         print("Working on regularization level {}".format(reg))
         align_array = []
         loss_array = []
