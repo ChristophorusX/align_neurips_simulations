@@ -264,12 +264,13 @@ def plot_mnist(align_df, performance_df, filename, n_category=4, n_layers=3):
 if __name__ == '__main__':
     n_hidden = 1000
     lr = 1e-4
-    n_epochs = 1
-    reg_levels = [1]
+    n_epochs = 5
+    n_layers = 2
+    reg_levels = [0, 1]
     align_df, performance_df = get_mnist_align_df(
-        n_epochs, n_hidden, lr, reg_levels, n_layers=2)
-    align_df.to_csv('dataframes/df_mnist_align_2l.csv', index=False)
+        n_epochs, n_hidden, lr, reg_levels, n_layers=n_layers)
+    align_df.to_csv("dataframes/df_mnist_align_{}l.csv".format(n_layers), index=False)
     performance_df.to_csv(
-        'dataframes/df_mnist_performance_2l.csv', index=False)
+        "dataframes/df_mnist_performance_{}l.csv".format(n_layers), index=False)
     plot_mnist(align_df, performance_df,
-               'outputs/mnist_2l.pdf', len(reg_levels), n_layers=2)
+               "outputs/mnist_{}l.pdf".format(n_layers), len(reg_levels), n_layers=n_layers)
