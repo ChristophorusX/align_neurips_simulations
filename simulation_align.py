@@ -279,7 +279,7 @@ if __name__ == '__main__':
         n, d = (50, 150)
         step = 10e-4
         n_step = 5000
-        reg_step = 2000
+        reg_step = 4000
         n_iter = 15
         # p_start = 5000
         # p_end = 10000
@@ -301,7 +301,7 @@ if __name__ == '__main__':
         n, d = (50, 150)
         step = 10e-2
         n_step = 5000
-        reg_step = 2000
+        reg_step = 4000
         n_iter = 15
         # p_start = 5000
         # p_end = 10000
@@ -323,7 +323,7 @@ if __name__ == '__main__':
         n, d = (50, 150)
         step = 10e-4
         n_step = 5000
-        reg_step = 2000
+        reg_step = 4000
         n_iter = 10
         # p_start = 5000
         # p_end = 10000

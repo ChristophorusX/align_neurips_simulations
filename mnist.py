@@ -82,16 +82,23 @@ def get_align_mnist(torch_net_fa):
         second_error_signal = torch_net_fa.hidden2.grad
         second_delta_fa = second_error_signal.mm(second_backprop_weight)
         second_delta_bp = second_error_signal.mm(second_layer_weight)
-        second_align = torch.tensordot(second_delta_fa, second_delta_bp) / \
+        second_align_vec = torch.tensordot(second_delta_fa, second_delta_bp) / \
             torch.norm(second_delta_fa) / torch.norm(second_delta_bp)
-        second_align = second_align.cpu().data.detach().numpy().flatten()
+        second_align_vec = second_align_vec.cpu().data.detach().numpy().flatten()
+        second_align_weight = torch.tensordot(second_backprop_weight, second_layer_weight) / \
+            torch.norm(second_backprop_weight) / \
+            torch.norm(second_layer_weight)
+        second_align_weight = second_align_weight.cpu().data.detach().numpy().flatten()
         third_error_signal = torch_net_fa.prediction.grad
         third_delta_fa = third_error_signal.mm(third_backprop_weight)
         third_delta_bp = third_error_signal.mm(third_layer_weight)
-        third_align = torch.tensordot(third_delta_fa, third_delta_bp) / \
+        third_align_vec = torch.tensordot(third_delta_fa, third_delta_bp) / \
             torch.norm(third_delta_fa) / torch.norm(third_delta_bp)
-        third_align = third_align.cpu().data.detach().numpy().flatten()
-        return np.array([second_align, third_align]).flatten()
+        third_align_vec = third_align_vec.cpu().data.detach().numpy().flatten()
+        third_align_weight = torch.tensordot(third_backprop_weight, third_layer_weight) / \
+            torch.norm(third_backprop_weight) / torch.norm(third_layer_weight)
+        third_align_weight = third_align_weight.cpu().data.detach().numpy().flatten()
+        return np.array([third_align_vec, third_align_vec, third_align_weight, third_align_weight]).flatten()
     else:
         for name, param in torch_net_fa.named_parameters():
             if name == 'second_layer.backprop_weight':
@@ -101,9 +108,13 @@ def get_align_mnist(torch_net_fa):
         error_signal = torch_net_fa.prediction.grad
         delta_fa = error_signal.mm(backprop_weight)
         delta_bp = error_signal.mm(second_layer_weight)
-        align = torch.tensordot(delta_fa, delta_bp) / \
+        align_vec = torch.tensordot(delta_fa, delta_bp) / \
             torch.norm(delta_fa) / torch.norm(delta_bp)
-        return align.cpu().data.detach().numpy().flatten()
+        align_vec = align_vec.cpu().data.detach().numpy().flatten()
+        align_weight = torch.tensordot(backprop_weight, second_layer_weight) / \
+            torch.norm(backprop_weight) / torch.norm(second_layer_weight)
+        align_weight = align_weight.cpu().data.detach().numpy().flatten()
+        return np.array([align_vec, align_weight]).flatten()
 
 
 def train_epoch_fa(torch_net_fa, mnist_trainset, mnist_testset, n_epochs, lr, align_array, loss_array, accuracy_array, reg_arr=None):
@@ -210,10 +221,10 @@ def get_mnist_align_df(n_epochs, n_hidden, lr, reg_levels, n_layers=3):
         combined_table = np.vstack((align_array.T, reg_index, step_index)).T
         if n_layers == 2:
             align_df = pd.DataFrame(data=combined_table, columns=[
-                                    "Second Layer Alignment", r"Regularization $\lambda$", "Step"])
+                                    "Second Layer Vec Alignment", "Second Layer Weight Alignment", r"Regularization $\lambda$", "Step"])
         else:
-            align_df = pd.DataFrame(data=combined_table, columns=[
-                                    "Second Layer Alignment", 'Third Layer Alignment', r"Regularization $\lambda$", "Step"])
+            align_df = pd.DataFrame(data=combined_table, columns=["Second Layer Vec Alignment", 'Third Layer Vec Alignment',
+                                    "Second Layer Weight Alignment", 'Third Layer Weight Alignment', r"Regularization $\lambda$", "Step"])
         reg_align_df.append(align_df)
         accuracy_array = np.array(accuracy_array)
         loss_array = np.array(loss_array)
@@ -232,30 +243,42 @@ def get_mnist_align_df(n_epochs, n_hidden, lr, reg_levels, n_layers=3):
 def plot_mnist(align_df, performance_df, filename, n_category=4, n_layers=3):
     custom_palette = sns.color_palette("CMRmap_r", n_category)
     if n_layers == 2:
-        fig = plt.figure(figsize=(8, 12))
-        ax1 = plt.subplot(211)
-        ax2 = plt.subplot(212)
-        sns.lineplot(x='Step', y='Second Layer Alignment',
-                     hue=r"Regularization $\lambda$", data=align_df, legend="full",
-                     palette=custom_palette, ax=ax1)
-        sns.lineplot(x='Step', y='Accuracy',
-                     hue=r"Regularization $\lambda$", data=performance_df, legend="full",
-                     palette=custom_palette, ax=ax2)
-        fig.savefig(filename)
-    else:
         fig = plt.figure(figsize=(8, 18))
         ax1 = plt.subplot(311)
         ax2 = plt.subplot(312)
         ax3 = plt.subplot(313)
-        sns.lineplot(x='Step', y='Second Layer Alignment',
+        sns.lineplot(x='Step', y='Second Layer Vec Alignment',
                      hue=r"Regularization $\lambda$", data=align_df, legend="full",
                      palette=custom_palette, ax=ax1)
-        sns.lineplot(x='Step', y='Third Layer Alignment',
+        sns.lineplot(x='Step', y='Second Layer Weight Alignment',
                      hue=r"Regularization $\lambda$", data=align_df, legend="full",
                      palette=custom_palette, ax=ax2)
         sns.lineplot(x='Step', y='Accuracy',
                      hue=r"Regularization $\lambda$", data=performance_df, legend="full",
                      palette=custom_palette, ax=ax3)
+        fig.savefig(filename)
+    else:
+        fig = plt.figure(figsize=(8, 30))
+        ax1 = plt.subplot(511)
+        ax2 = plt.subplot(512)
+        ax3 = plt.subplot(513)
+        ax4 = plt.subplot(514)
+        ax5 = plt.subplot(515)
+        sns.lineplot(x='Step', y='Second Layer Vec Alignment',
+                     hue=r"Regularization $\lambda$", data=align_df, legend="full",
+                     palette=custom_palette, ax=ax1)
+        sns.lineplot(x='Step', y='Third Layer Vec Alignment',
+                     hue=r"Regularization $\lambda$", data=align_df, legend="full",
+                     palette=custom_palette, ax=ax2)
+        sns.lineplot(x='Step', y='Second Layer Weight Alignment',
+                     hue=r"Regularization $\lambda$", data=align_df, legend="full",
+                     palette=custom_palette, ax=ax3)
+        sns.lineplot(x='Step', y='Third Layer Weight Alignment',
+                     hue=r"Regularization $\lambda$", data=align_df, legend="full",
+                     palette=custom_palette, ax=ax4)
+        sns.lineplot(x='Step', y='Accuracy',
+                     hue=r"Regularization $\lambda$", data=performance_df, legend="full",
+                     palette=custom_palette, ax=ax5)
         fig.savefig(filename)
 
 
@@ -267,7 +290,8 @@ if __name__ == '__main__':
     reg_levels = [0, 1]
     align_df, performance_df = get_mnist_align_df(
         n_epochs, n_hidden, lr, reg_levels, n_layers=n_layers)
-    align_df.to_csv("dataframes/df_mnist_align_{}l.csv".format(n_layers), index=False)
+    align_df.to_csv(
+        "dataframes/df_mnist_align_{}l.csv".format(n_layers), index=False)
     performance_df.to_csv(
         "dataframes/df_mnist_performance_{}l.csv".format(n_layers), index=False)
     plot_mnist(align_df, performance_df,
