@@ -308,7 +308,7 @@ if __name__ == '__main__':
         # p_step = 100
         # p_list = np.arange(start=p_start, stop=p_end + p_step, step=p_step)
         p_list = [800, 1600]
-        reg_list = [0, 0.4, 0.6, 0.8]
+        reg_list = [0, 0.5, 0.7, 0.9]
         df_sigmoid = get_autograd_align_df(
             n, d, p_list, reg_list, 'sigmoid', 'nn', step, n_step, reg_step, n_iter, dropout=True)
         plot_align(df_sigmoid, "outputs/align_{}_{}_{}_{}.pdf".format(args.data,
