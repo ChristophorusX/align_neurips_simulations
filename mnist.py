@@ -188,8 +188,8 @@ def get_mnist_align_df(n_epochs, n_hidden, lr, reg_levels, n_layers=3):
         print("Fitting three-layer networks...")
         torch_net_fa0 = MNISTThreeLayerFeedbackAlignmentNetworkReLU(
             n_hidden, 0).to(device)
-    net_list.append(torch_net_fa0)
     for reg in reg_levels:
+        print("Generating network with reg level {}".format(reg))
         torch_net_fa_reg = get_network_with_reg(torch_net_fa0, n_hidden, reg)
         net_list.append(torch_net_fa_reg)
     print("Generating dataframes...")
@@ -197,6 +197,8 @@ def get_mnist_align_df(n_epochs, n_hidden, lr, reg_levels, n_layers=3):
     reg_performance_df = []
     zipped_list = zip(reg_levels, net_list)
     for reg, torch_net_fa in zipped_list:
+        if reg == 0:
+            continue
         print("Working on regularization level {}".format(reg))
         align_array = []
         loss_array = []
@@ -263,7 +265,7 @@ if __name__ == '__main__':
     n_hidden = 1000
     lr = 1e-4
     n_epochs = 1
-    reg_levels = [0, 1]
+    reg_levels = [1]
     align_df, performance_df = get_mnist_align_df(
         n_epochs, n_hidden, lr, reg_levels, n_layers=2)
     align_df.to_csv('dataframes/df_mnist_align_2l.csv', index=False)

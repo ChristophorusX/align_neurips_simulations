@@ -293,3 +293,25 @@ if __name__ == '__main__':
                    args.network, args.scheme, args.regularization), len(reg_list))
         df_relu.to_csv("dataframes/df_{}_{}_{}_{}.csv".format(args.data,
                      args.network, args.scheme, args.regularization), index=False)
+
+
+    # Generate alignment plot for autograd sigmoid network and nn data with dropout
+    if args.data == 'nn' and args.network == 'sigmoid' and args.scheme == 'autograd' and args.regularization == 'dropout':
+        print("Generate alignment plot for autograd sigmoid network and nn data with dropout")
+        n, d = (50, 150)
+        step = 10e-4
+        n_step = 5000
+        reg_step = 2000
+        n_iter = 3
+        # p_start = 5000
+        # p_end = 10000
+        # p_step = 100
+        # p_list = np.arange(start=p_start, stop=p_end + p_step, step=p_step)
+        p_list = [800, 1600]
+        reg_list = [0, 0.4, 0.6, 0.8]
+        df_sigmoid = get_autograd_align_df(
+            n, d, p_list, reg_list, 'sigmoid', 'nn', step, n_step, reg_step, n_iter, dropout=True)
+        plot_align(df_sigmoid, "outputs/align_{}_{}_{}_{}.pdf".format(args.data,
+                   args.network, args.scheme, args.regularization), len(reg_list))
+        df_sigmoid.to_csv("dataframes/df_{}_{}_{}_{}.csv".format(args.data,
+                     args.network, args.scheme, args.regularization), index=False)
