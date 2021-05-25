@@ -299,7 +299,7 @@ if __name__ == '__main__':
     if args.data == 'nn' and args.network == 'sigmoid' and args.scheme == 'autograd' and args.regularization == 'dropout':
         print("Generate alignment plot for autograd sigmoid network and nn data with dropout")
         n, d = (50, 150)
-        step = 10e-4
+        step = 10e-2
         n_step = 5000
         reg_step = 2000
         n_iter = 3
