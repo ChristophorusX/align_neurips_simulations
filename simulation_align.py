@@ -200,15 +200,16 @@ if __name__ == '__main__':
         n, d = (50, 150)
         step = 10e-5
         n_step = 2000
-        n_iter = 10
-        p_start = 300
-        p_end = 1000
-        p_step = 25
-        p_list = np.arange(start=p_start, stop=p_end + p_step, step=p_step)
+        n_iter = 3
+        # p_start = 300
+        # p_end = 1000
+        # p_step = 25
+        # p_list = np.arange(start=p_start, stop=p_end + p_step, step=p_step)
+        p_list = [10000, 20000, 100000]
         reg_list = [0, 5, 10]
         df_lr = get_align_df(n, d, p_list, reg_list, 'non',
                              'lr', step, n_step, n_iter)
-        plot_align(df_lr, 'outputs/align_lr_fig_large.pdf')
+        plot_align(df_lr, 'outputs/align_lr_fig_large_v3.pdf', len(reg_list))
 
     # Generate alignment plot for autograd relu network and nn data
     if args.data == 'nn' and args.network == 'relu' and args.scheme == 'autograd' and args.regularization == 'l2':

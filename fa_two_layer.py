@@ -33,13 +33,13 @@ class TwoLayerNetwork(object):
                 X = torch.FloatTensor(X)
                 self.H = torch.matmul(X, self.W)
                 self.H_activated = self.activation(self.H)
-                self.f = torch.matmul(self.H_activated, self.beta) / np.sqrt(self.n)
+                self.f = torch.matmul(self.H_activated, self.beta) / np.sqrt(self.p)
         else:
             with torch.no_grad():
                 X = torch.FloatTensor(X)
                 self.H = torch.matmul(X, self.W0)
                 self.H_activated = self.activation(self.H)
-                self.f = torch.matmul(self.H_activated, self.beta0) / np.sqrt(self.n)
+                self.f = torch.matmul(self.H_activated, self.beta0) / np.sqrt(self.p)
         return self.f.data.numpy().flatten()
 
     def back_propagation(self, X, y, step, n_steps=10000):
