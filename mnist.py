@@ -117,7 +117,7 @@ def get_align_mnist(torch_net_fa):
         return np.array([align_vec, align_weight]).flatten()
 
 
-def train_epoch_fa(torch_net_fa, mnist_trainset, mnist_testset, n_epochs, lr, align_array, loss_array, accuracy_array, reg_arr=None):
+def train_epoch_fa(torch_net_fa, mnist_trainset, mnist_testset, n_epochs, lr, align_array, loss_array, accuracy_array, reg_type=None):
     reg_cnt = 0
     for epo in range(n_epochs):
         train_loader = torch.utils.data.DataLoader(mnist_trainset)
@@ -127,13 +127,23 @@ def train_epoch_fa(torch_net_fa, mnist_trainset, mnist_testset, n_epochs, lr, al
             # torch_net_fa.train()
             data = data.flatten().unsqueeze(0).to(device)
             target = target.to(device)
-            if reg_arr is not None:
-                reg = reg_arr[reg_cnt]
-                for name, param in torch_net_fa.named_parameters():
-                    if name == 'second_layer.regularization':
-                        param.data.copy_(reg * torch.ones_like(param.data))
-                    if name == 'third_layer.regularization':
-                        param.data.copy_(reg * torch.ones_like(param.data))
+            if reg_type is not None:
+                if reg_type == 'exp':
+                    for name, param in torch_net_fa.named_parameters():
+                        if name == 'second_layer.regularization':
+                            # param.data.copy_(reg * torch.ones_like(param.data))
+                            param.data.copy_(0.9999999999999 * param.data)
+                        if name == 'third_layer.regularization':
+                            # param.data.copy_(reg * torch.ones_like(param.data))
+                            param.data.copy_(0.9999999999999 * param.data)
+                else: # cutoff reg
+                    if reg_cnt == reg_type:
+                        print("Reached regularization cutoff...")
+                        for name, param in torch_net_fa.named_parameters():
+                            if name == 'second_layer.regularization':
+                                param.data.copy_(torch.zeros_like(param.data))
+                            if name == 'third_layer.regularization':
+                                param.data.copy_(torch.zeros_like(param.data))
             optimizer_fa.zero_grad()
             output = torch_net_fa(data)
             loss = F.nll_loss(output, target)
