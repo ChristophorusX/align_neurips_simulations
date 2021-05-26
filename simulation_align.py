@@ -277,13 +277,13 @@ if __name__ == '__main__':
         # p_end = 6000
         # p_step = 1000
         # p_list = np.arange(start=p_start, stop=p_end + p_step, step=p_step)
-        p_list = [200, 2400, 12800]
-        reg_list = [0, 0.003, 0.005, 0.01]
+        p_list = [200, 400, 800, 1600, 3200, 6400, 12800]
+        reg_list = [0, 0.001, 0.003, 0.01]
         df_sigmoid = get_autograd_align_df(
             n, d, p_list, reg_list, 'sigmoid', 'nn', step, n_step, reg_step, n_iter)
-        plot_align(df_sigmoid, "outputs/align_{}_{}_{}_{}_v2r.pdf".format(args.data,
+        plot_align(df_sigmoid, "outputs/align_{}_{}_{}_{}_v3.pdf".format(args.data,
                    args.network, args.scheme, args.regularization), len(reg_list))
-        df_sigmoid.to_csv("dataframes/df_{}_{}_{}_{}_v2r.csv".format(args.data,
+        df_sigmoid.to_csv("dataframes/df_{}_{}_{}_{}_v3.csv".format(args.data,
                      args.network, args.scheme, args.regularization), index=False)
 
     # Generate alignment plot for autograd tanh network and nn data
@@ -298,13 +298,13 @@ if __name__ == '__main__':
         # p_end = 6000
         # p_step = 1000
         # p_list = np.arange(start=p_start, stop=p_end + p_step, step=p_step)
-        p_list = [200, 2400, 12800]
-        reg_list = [0, 0.0001, 0.001, 0.01]
+        p_list = [200, 400, 800, 1600, 3200, 6400, 12800]
+        reg_list = [0, 0.001, 0.005, 0.01]
         df_sigmoid = get_autograd_align_df(
             n, d, p_list, reg_list, 'tanh', 'nn', step, n_step, reg_step, n_iter)
-        plot_align(df_sigmoid, "outputs/align_{}_{}_{}_{}_v2.pdf".format(args.data,
+        plot_align(df_sigmoid, "outputs/align_{}_{}_{}_{}_v3.pdf".format(args.data,
                    args.network, args.scheme, args.regularization), len(reg_list))
-        df_sigmoid.to_csv("dataframes/df_{}_{}_{}_{}_v2.csv".format(args.data,
+        df_sigmoid.to_csv("dataframes/df_{}_{}_{}_{}_v3.csv".format(args.data,
                      args.network, args.scheme, args.regularization), index=False)
 
     # Generate alignment plot for autograd linear network and lr data
@@ -319,13 +319,13 @@ if __name__ == '__main__':
         # p_end = 10000
         # p_step = 1000
         # p_list = np.arange(start=p_start, stop=p_end + p_step, step=p_step)
-        p_list = [200, 2400, 12800]
+        p_list = [200, 400, 800, 1600, 3200, 6400, 12800]
         reg_list = [0, 0.1, 0.3, 0.5]
         df_lr = get_autograd_align_df(
             n, d, p_list, reg_list, 'non', 'lr', step, n_step, reg_step, n_iter)
-        plot_align(df_lr, "outputs/align_{}_{}_{}_{}_v2.pdf".format(args.data,
+        plot_align(df_lr, "outputs/align_{}_{}_{}_{}_v3.pdf".format(args.data,
                    args.network, args.scheme, args.regularization), len(reg_list))
-        df_lr.to_csv("dataframes/df_{}_{}_{}_{}_v2.csv".format(args.data,
+        df_lr.to_csv("dataframes/df_{}_{}_{}_{}_v3.csv".format(args.data,
                      args.network, args.scheme, args.regularization), index=False)
 
     # Generate alignment plot for autograd relu network and nn data with dropout
