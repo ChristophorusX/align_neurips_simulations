@@ -134,7 +134,7 @@ def get_autograd_align_df(n, d, p_list, reg_list, activation, synthetic_data, st
                                     param.data.copy_(torch.zeros_like(param.data))
                     pred = torch_net_fa.forward(X_torch)
                     loss = loss_fn_fa(pred, y_torch)
-                    if t % (n_step / 5) == n_step / 5 - 1:
+                    if t % (n_step / 50) == n_step / 50 - 1:
                         for name, param in torch_net_fa.named_parameters():
                             if name == 'second_layer.backprop_weight':
                                 backprop_weight = param.data
