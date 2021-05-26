@@ -127,7 +127,7 @@ def get_autograd_align_df(n, d, p_list, reg_list, activation, synthetic_data, st
                 else:
                     continue_flag = False
                 t = 0
-                loss_record = 0
+                loss_record = torch.FloatTensor(0)
                 while t < proportion_step or continue_flag:
                     if reg_flag is True and t >= reg_step - 1:
                         print("Stop regularization at step {}".format(t))
