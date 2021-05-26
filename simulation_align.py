@@ -241,7 +241,7 @@ if __name__ == '__main__':
         n, d = (50, 150)
         step = 10e-2
         n_step = 5000
-        reg_step = 2000
+        reg_step = 0
         n_iter = 10
         # p_start = 5000
         # p_end = 6000
@@ -251,9 +251,9 @@ if __name__ == '__main__':
         reg_list = [0, 0.003, 0.005, 0.01]
         df_sigmoid = get_autograd_align_df(
             n, d, p_list, reg_list, 'sigmoid', 'nn', step, n_step, reg_step, n_iter)
-        plot_align(df_sigmoid, "outputs/align_{}_{}_{}_{}.pdf".format(args.data,
+        plot_align(df_sigmoid, "outputs/align_{}_{}_{}_{}_v2.pdf".format(args.data,
                    args.network, args.scheme, args.regularization), len(reg_list))
-        df_sigmoid.to_csv("dataframes/df_{}_{}_{}_{}.csv".format(args.data,
+        df_sigmoid.to_csv("dataframes/df_{}_{}_{}_{}_v2.csv".format(args.data,
                      args.network, args.scheme, args.regularization), index=False)
 
     # Generate alignment plot for autograd linear network and lr data
@@ -283,7 +283,7 @@ if __name__ == '__main__':
         n, d = (50, 150)
         step = 10e-4
         n_step = 5000
-        reg_step = 2000
+        reg_step = 0
         n_iter = 15
         # p_start = 5000
         # p_end = 10000
@@ -293,9 +293,9 @@ if __name__ == '__main__':
         reg_list = [0, 0.4, 0.6, 0.8]
         df_relu = get_autograd_align_df(
             n, d, p_list, reg_list, 'relu', 'nn', step, n_step, reg_step, n_iter, dropout=True)
-        plot_align(df_relu, "outputs/align_{}_{}_{}_{}.pdf".format(args.data,
+        plot_align(df_relu, "outputs/align_{}_{}_{}_{}_v2.pdf".format(args.data,
                    args.network, args.scheme, args.regularization), len(reg_list))
-        df_relu.to_csv("dataframes/df_{}_{}_{}_{}.csv".format(args.data,
+        df_relu.to_csv("dataframes/df_{}_{}_{}_{}_v2.csv".format(args.data,
                      args.network, args.scheme, args.regularization), index=False)
 
 
