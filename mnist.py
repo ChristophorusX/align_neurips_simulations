@@ -259,10 +259,10 @@ def get_mnist_align_df(n_epochs, n_hidden, lr, batch_size, reg_levels, n_layers=
 def plot_mnist(align_df, performance_df, filename, n_category=4, n_layers=3):
     custom_palette = sns.color_palette("CMRmap_r", n_category)
     if n_layers == 2:
-        fig = plt.figure(figsize=(8, 18))
-        ax1 = plt.subplot(311)
-        ax2 = plt.subplot(312)
-        ax3 = plt.subplot(313)
+        fig = plt.figure(figsize=(18, 8))
+        ax1 = plt.subplot(131)
+        ax2 = plt.subplot(132)
+        ax3 = plt.subplot(133)
         sns.lineplot(x='Step', y='Second Layer Vec Alignment',
                      hue=r"Regularization $\lambda$", data=align_df, legend="full",
                      palette=custom_palette, ax=ax1)
@@ -301,15 +301,20 @@ def plot_mnist(align_df, performance_df, filename, n_category=4, n_layers=3):
 if __name__ == '__main__':
     n_hidden = 1000
     lr = 1e-2
-    n_epochs = 150
+    n_epochs = 300
     batch_size = 600
     n_layers = 3
     reg_levels = [0, 0.1, 0.3]
     align_df, performance_df = get_mnist_align_df(
         n_epochs, n_hidden, lr, batch_size, reg_levels, n_layers=n_layers)
     align_df.to_csv(
-        "dataframes/df_mnist_align_{}l_v2.csv".format(n_layers), index=False)
+        "dataframes/df_mnist_align_{}l_v3.csv".format(n_layers), index=False)
     performance_df.to_csv(
-        "dataframes/df_mnist_performance_{}l_v2.csv".format(n_layers), index=False)
+        "dataframes/df_mnist_performance_{}l_v3.csv".format(n_layers), index=False)
     plot_mnist(align_df, performance_df,
-               "outputs/mnist_{}l_v2.pdf".format(n_layers), len(reg_levels), n_layers=n_layers)
+               "outputs/mnist_{}l_v3.pdf".format(n_layers), len(reg_levels), n_layers=n_layers)
+
+    # align_df = pd.read_csv("dataframes/df_mnist_align_2l_v2.csv")
+    # performance_df = pd.read_csv("dataframes/df_mnist_performance_2l_v2.csv")
+    # plot_mnist(align_df, performance_df,
+    #            "outputs/mnist_{}l_v2_horizontal.pdf".format(2), 3, 2)
