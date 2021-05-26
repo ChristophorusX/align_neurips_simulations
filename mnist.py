@@ -156,7 +156,7 @@ def train_epoch_fa(torch_net_fa, mnist_trainset, mnist_testset, n_epochs, lr, al
             align = get_align_mnist(torch_net_fa)
             align_array.append(align)
             reg_cnt = reg_cnt + 1
-            if batch_idx % 1000 == 999:
+            if batch_idx % 100 == 99:
                 print(align)
                 # torch_net_fa.eval()
                 test_loss = 0
