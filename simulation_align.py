@@ -127,7 +127,7 @@ def get_autograd_align_df(n, d, p_list, reg_list, activation, synthetic_data, st
                 else:
                     continue_flag = False
                 t = 0
-                loss_record = torch.FloatTensor(0)
+                loss_record = 0
                 while t < proportion_step or continue_flag:
                     if reg_flag is True and t >= reg_step - 1:
                         print("Stop regularization at step {}".format(t))
@@ -151,7 +151,7 @@ def get_autograd_align_df(n, d, p_list, reg_list, activation, synthetic_data, st
                             torch.norm(second_layer_weight)
                         align = align.cpu().data.detach().numpy().flatten()
                         print(t, loss.item(), align)
-                        if torch.abs(loss.item() - loss_record) < 0.1:
+                        if np.abs(loss.item() - loss_record) < 0.1:
                             continue_flag = False
                             print("Break out of loop...")
                         loss_record = loss.item()
