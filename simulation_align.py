@@ -367,7 +367,7 @@ if __name__ == '__main__':
         print("Generate alignment plot for autograd linear network and lr data with dropout")
         n, d = (50, 150)
         step = 10e-4
-        n_step = 5000
+        n_step = 10000
         reg_step = 0
         n_iter = 2
         # p_start = 5000
