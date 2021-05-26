@@ -26,6 +26,9 @@ class TwoLayerNetwork(object):
             self.activation = torch.sigmoid
             self.act_derivative = lambda x: torch.sigmoid(
                 x)(1 - torch.sigmoid(x))
+        elif activation == 'tanh':
+            self.activation = torch.tanh
+            self.act_derivative = lambda x: torch.ones_like(x) - torch.tanh(x) * torch.tanh(x)
 
     def forward(self, X):
         if hasattr(self, 'W') and hasattr(self, 'beta'):
