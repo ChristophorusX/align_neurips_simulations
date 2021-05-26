@@ -120,7 +120,7 @@ def get_align_mnist(torch_net_fa):
 def train_epoch_fa(torch_net_fa, mnist_trainset, mnist_testset, n_epochs, lr, align_array, loss_array, accuracy_array, reg_type=None):
     reg_cnt = 0
     for epo in range(n_epochs):
-        train_loader = torch.utils.data.DataLoader(mnist_trainset)
+        train_loader = torch.utils.data.DataLoader(mnist_trainset, batch_size=60, shuffle=True)
         test_loader = torch.utils.data.DataLoader(mnist_testset)
         optimizer_fa = torch.optim.SGD(torch_net_fa.parameters(), lr=lr)
         for batch_idx, (data, target) in enumerate(train_loader):
