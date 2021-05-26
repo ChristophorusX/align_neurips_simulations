@@ -125,10 +125,7 @@ def train_epoch_fa(torch_net_fa, mnist_trainset, mnist_testset, n_epochs, lr, al
         optimizer_fa = torch.optim.SGD(torch_net_fa.parameters(), lr=lr)
         for batch_idx, (data, target) in enumerate(train_loader):
             # torch_net_fa.train()
-            print(data.shape)
             data = data.flatten(start_dim=1).to(device)
-            print(data.shape)
-            break
             target = target.to(device)
             if reg_type is not None:
                 if reg_type == 'exp':
