@@ -294,7 +294,7 @@ def plot_mnist(align_df, performance_df, filename, n_category=4, n_layers=3):
 
 if __name__ == '__main__':
     n_hidden = 1000
-    lr = 1e-3
+    lr = 1e-2
     n_epochs = 50
     batch_size = 600
     n_layers = 2
