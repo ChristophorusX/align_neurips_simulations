@@ -117,10 +117,10 @@ def get_align_mnist(torch_net_fa):
         return np.array([align_vec, align_weight]).flatten()
 
 
-def train_epoch_fa(torch_net_fa, mnist_trainset, mnist_testset, n_epochs, lr, align_array, loss_array, accuracy_array, reg_type=None):
+def train_epoch_fa(torch_net_fa, mnist_trainset, mnist_testset, n_epochs, lr, batch_size, align_array, loss_array, accuracy_array, reg_type=None):
     reg_cnt = 0
     for epo in range(n_epochs):
-        train_loader = torch.utils.data.DataLoader(mnist_trainset, batch_size=60, shuffle=True)
+        train_loader = torch.utils.data.DataLoader(mnist_trainset, batch_size=batch_size, shuffle=True)
         test_loader = torch.utils.data.DataLoader(mnist_testset)
         optimizer_fa = torch.optim.SGD(torch_net_fa.parameters(), lr=lr)
         for batch_idx, (data, target) in enumerate(train_loader):
@@ -296,10 +296,11 @@ if __name__ == '__main__':
     n_hidden = 1000
     lr = 1e-3
     n_epochs = 50
+    batch_size = 600
     n_layers = 2
     reg_levels = [0, 0.1, 0.5]
     align_df, performance_df = get_mnist_align_df(
-        n_epochs, n_hidden, lr, reg_levels, n_layers=n_layers)
+        n_epochs, n_hidden, lr, batch_size, reg_levels, n_layers=n_layers)
     align_df.to_csv(
         "dataframes/df_mnist_align_{}l.csv".format(n_layers), index=False)
     performance_df.to_csv(
