@@ -135,7 +135,16 @@ def get_autograd_align_df(n, d, p_list, reg_list, activation, synthetic_data, st
                     pred = torch_net_fa.forward(X_torch)
                     loss = loss_fn_fa(pred, y_torch)
                     if t % (n_step / 5) == n_step / 5 - 1:
-                        print(t, loss.item())
+                        for name, param in torch_net_fa.named_parameters():
+                            if name == 'second_layer.backprop_weight':
+                                backprop_weight = param.data
+                            if name == 'second_layer.weight':
+                                second_layer_weight = param.data
+                        align = torch.tensordot(backprop_weight, second_layer_weight) / \
+                            torch.norm(backprop_weight) / \
+                            torch.norm(second_layer_weight)
+                        align = align.cpu().data.detach().numpy().flatten()
+                        print(t, loss.item(), align)
                     optimizer_fa.zero_grad()
                     loss.backward()
                     optimizer_fa.step()

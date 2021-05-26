@@ -32,9 +32,9 @@ plt.plot(np.arange(n_step)[:10000], loss_bp[:10000], np.arange(n_step)[
          :10000], loss_fa1[:10000], np.arange(n_step)[:10000], loss_fa10[:10000])
 
 
-learning_rate = 10e-5
-reg = 0
-torch_net_fa = net_autograd.TwoLayerFeedbackAlignmentNetworkReLU(d, p, reg)
+learning_rate = 10e-4
+reg = 0.1
+torch_net_fa = net_autograd.TwoLayerFeedbackAlignmentDropoutNetworkReLU(d, p, reg)
 optimizer_fa = torch.optim.SGD(torch_net_fa.parameters(), lr=learning_rate)
 loss_fn_fa = nn.MSELoss()
 X_torch = torch.FloatTensor(X)
