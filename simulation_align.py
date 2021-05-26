@@ -244,12 +244,12 @@ if __name__ == '__main__':
         step = 10e-2
         n_step = 5000
         reg_step = 0
-        n_iter = 10
+        n_iter = 3
         # p_start = 5000
         # p_end = 6000
         # p_step = 1000
         # p_list = np.arange(start=p_start, stop=p_end + p_step, step=p_step)
-        p_list = [200, 400, 800, 1600, 3200, 6400, 12800]
+        p_list = [200, 2400, 12800]
         reg_list = [0, 0.003, 0.005, 0.01]
         df_sigmoid = get_autograd_align_df(
             n, d, p_list, reg_list, 'sigmoid', 'nn', step, n_step, reg_step, n_iter)
