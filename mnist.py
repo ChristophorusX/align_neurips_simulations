@@ -296,8 +296,8 @@ if __name__ == '__main__':
     n_hidden = 1000
     lr = 1e-3
     n_epochs = 5
-    n_layers = 3
-    reg_levels = [0, 1]
+    n_layers = 2
+    reg_levels = [0, 0.1]
     align_df, performance_df = get_mnist_align_df(
         n_epochs, n_hidden, lr, reg_levels, n_layers=n_layers)
     align_df.to_csv(
