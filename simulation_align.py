@@ -122,7 +122,13 @@ def get_autograd_align_df(n, d, p_list, reg_list, activation, synthetic_data, st
                     else:
                         reg_flag = True
                 proportion_step = np.rint(n_step * np.sqrt(p) // np.rint(np.sqrt(p_list[0])))
-                for t in np.arange(proportion_step):
+                if dropout:
+                    continue_flag = True
+                else:
+                    continue_flag = False
+                t = 0
+                loss_record = 0
+                while t < proportion_step or continue_flag:
                     if reg_flag is True and t >= reg_step - 1:
                         print("Stop regularization at step {}".format(t))
                         reg_flag = False
@@ -145,9 +151,14 @@ def get_autograd_align_df(n, d, p_list, reg_list, activation, synthetic_data, st
                             torch.norm(second_layer_weight)
                         align = align.cpu().data.detach().numpy().flatten()
                         print(t, loss.item(), align)
+                        if torch.abs(loss.item() - loss_record) < 0.1:
+                            continue_flag = False
+                            print("Break out of loop...")
+                        loss_record = loss.item()
                     optimizer_fa.zero_grad()
                     loss.backward()
                     optimizer_fa.step()
+                    t += 1
                 for name, param in torch_net_fa.named_parameters():
                     if name == 'second_layer.backprop_weight':
                         backprop_weight = param.data
