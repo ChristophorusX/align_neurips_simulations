@@ -320,7 +320,7 @@ if __name__ == '__main__':
         # p_step = 1000
         # p_list = np.arange(start=p_start, stop=p_end + p_step, step=p_step)
         p_list = [200, 2400, 12800]
-        reg_list = [0, 0.5, 1, 1.5]
+        reg_list = [0, 0.1, 0.3, 0.5]
         df_lr = get_autograd_align_df(
             n, d, p_list, reg_list, 'non', 'lr', step, n_step, reg_step, n_iter)
         plot_align(df_lr, "outputs/align_{}_{}_{}_{}_v2.pdf".format(args.data,
