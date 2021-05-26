@@ -76,6 +76,15 @@ def get_network(d, p, activation, reg, dropout):
             torch_net_fa = net_autograd.TwoLayerFeedbackAlignmentNetworkSigmoid(
                 d, p, reg)
             return torch_net_fa
+    elif activation == 'tanh':
+        if dropout:
+            torch_net_fa = net_autograd.TwoLayerFeedbackAlignmentDropoutNetworkTanh(
+                d, p, reg)
+            return torch_net_fa
+        else:
+            torch_net_fa = net_autograd.TwoLayerFeedbackAlignmentNetworkTanh(
+                d, p, reg)
+            return torch_net_fa
     elif activation == 'non':
         if dropout:
             torch_net_fa = net_autograd.TwoLayerFeedbackAlignmentDropoutNetworkLinear(
@@ -253,6 +262,27 @@ if __name__ == '__main__':
         reg_list = [0, 0.003, 0.005, 0.01]
         df_sigmoid = get_autograd_align_df(
             n, d, p_list, reg_list, 'sigmoid', 'nn', step, n_step, reg_step, n_iter)
+        plot_align(df_sigmoid, "outputs/align_{}_{}_{}_{}_v2.pdf".format(args.data,
+                   args.network, args.scheme, args.regularization), len(reg_list))
+        df_sigmoid.to_csv("dataframes/df_{}_{}_{}_{}_v2.csv".format(args.data,
+                     args.network, args.scheme, args.regularization), index=False)
+
+    # Generate alignment plot for autograd tanh network and nn data
+    if args.data == 'nn' and args.network == 'tanh' and args.scheme == 'autograd' and args.regularization == 'l2':
+        print("Generate alignment plot for autograd tanh network and nn data")
+        n, d = (50, 150)
+        step = 10e-2
+        n_step = 5000
+        reg_step = 0
+        n_iter = 3
+        # p_start = 5000
+        # p_end = 6000
+        # p_step = 1000
+        # p_list = np.arange(start=p_start, stop=p_end + p_step, step=p_step)
+        p_list = [200, 2400, 12800]
+        reg_list = [0, 0.003, 0.005, 0.01]
+        df_sigmoid = get_autograd_align_df(
+            n, d, p_list, reg_list, 'tanh', 'nn', step, n_step, reg_step, n_iter)
         plot_align(df_sigmoid, "outputs/align_{}_{}_{}_{}_v2.pdf".format(args.data,
                    args.network, args.scheme, args.regularization), len(reg_list))
         df_sigmoid.to_csv("dataframes/df_{}_{}_{}_{}_v2.csv".format(args.data,
