@@ -302,8 +302,8 @@ if __name__ == '__main__':
     align_df, performance_df = get_mnist_align_df(
         n_epochs, n_hidden, lr, batch_size, reg_levels, n_layers=n_layers)
     align_df.to_csv(
-        "dataframes/df_mnist_align_{}l.csv".format(n_layers), index=False)
+        "dataframes/df_mnist_align_{}l_v2.csv".format(n_layers), index=False)
     performance_df.to_csv(
-        "dataframes/df_mnist_performance_{}l.csv".format(n_layers), index=False)
+        "dataframes/df_mnist_performance_{}l_v2.csv".format(n_layers), index=False)
     plot_mnist(align_df, performance_df,
-               "outputs/mnist_{}l.pdf".format(n_layers), len(reg_levels), n_layers=n_layers)
+               "outputs/mnist_{}l_v2.pdf".format(n_layers), len(reg_levels), n_layers=n_layers)
