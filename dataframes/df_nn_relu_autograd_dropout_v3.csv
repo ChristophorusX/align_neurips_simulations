@@ -1,0 +1,7 @@
+$p$ Hidden Layer Width,Alignment,Regularization $\lambda$,Activation
+200,0.85939986,0.4,relu
+200,0.8923198,0.4,relu
+2400,0.7423214,0.4,relu
+2400,0.73809963,0.4,relu
+12800,0.01564775,0.4,relu
+12800,0.011671548,0.4,relu
