@@ -270,7 +270,7 @@ if __name__ == '__main__':
         # p_end = 10000
         # p_step = 1000
         # p_list = np.arange(start=p_start, stop=p_end + p_step, step=p_step)
-        p_list = [1600, 6400, 12800]
+        p_list = [600, 2400, 12800]
         reg_list = [0, 0.5, 1, 1.5]
         df_lr = get_autograd_align_df(
             n, d, p_list, reg_list, 'non', 'lr', step, n_step, reg_step, n_iter)
