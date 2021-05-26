@@ -156,7 +156,7 @@ def train_epoch_fa(torch_net_fa, mnist_trainset, mnist_testset, n_epochs, lr, ba
             align = get_align_mnist(torch_net_fa)
             align_array.append(align)
             reg_cnt = reg_cnt + 1
-            if batch_idx % 100 == 99:
+            if batch_idx % 10 == 9:
                 print(align)
                 # torch_net_fa.eval()
                 test_loss = 0
@@ -294,9 +294,9 @@ def plot_mnist(align_df, performance_df, filename, n_category=4, n_layers=3):
 
 if __name__ == '__main__':
     n_hidden = 1000
-    lr = 1e-2
+    lr = 1e-1
     n_epochs = 50
-    batch_size = 600
+    batch_size = 6000
     n_layers = 2
     reg_levels = [0, 0.1, 0.5]
     align_df, performance_df = get_mnist_align_df(
