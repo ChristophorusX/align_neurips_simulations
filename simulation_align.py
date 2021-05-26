@@ -271,9 +271,9 @@ if __name__ == '__main__':
         reg_list = [0, 0.003, 0.005, 0.01]
         df_sigmoid = get_autograd_align_df(
             n, d, p_list, reg_list, 'sigmoid', 'nn', step, n_step, reg_step, n_iter)
-        plot_align(df_sigmoid, "outputs/align_{}_{}_{}_{}_v2.pdf".format(args.data,
+        plot_align(df_sigmoid, "outputs/align_{}_{}_{}_{}_v2r.pdf".format(args.data,
                    args.network, args.scheme, args.regularization), len(reg_list))
-        df_sigmoid.to_csv("dataframes/df_{}_{}_{}_{}_v2.csv".format(args.data,
+        df_sigmoid.to_csv("dataframes/df_{}_{}_{}_{}_v2r.csv".format(args.data,
                      args.network, args.scheme, args.regularization), index=False)
 
     # Generate alignment plot for autograd tanh network and nn data
