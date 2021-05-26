@@ -371,6 +371,27 @@ if __name__ == '__main__':
         df_sigmoid.to_csv("dataframes/df_{}_{}_{}_{}_v2.csv".format(args.data,
                      args.network, args.scheme, args.regularization), index=False)
 
+    # Generate alignment plot for autograd tanh network and nn data with dropout
+    if args.data == 'nn' and args.network == 'tanh' and args.scheme == 'autograd' and args.regularization == 'dropout':
+        print("Generate alignment plot for autograd tanh network and nn data with dropout")
+        n, d = (50, 150)
+        step = 10e-2
+        n_step = 5000
+        reg_step = 0
+        n_iter = 15
+        # p_start = 5000
+        # p_end = 10000
+        # p_step = 100
+        # p_list = np.arange(start=p_start, stop=p_end + p_step, step=p_step)
+        p_list = [200, 2400, 12800]
+        reg_list = [0, 0.5, 0.7, 0.9]
+        df_sigmoid = get_autograd_align_df(
+            n, d, p_list, reg_list, 'tanh', 'nn', step, n_step, reg_step, n_iter, dropout=True)
+        plot_align(df_sigmoid, "outputs/align_{}_{}_{}_{}_v2.pdf".format(args.data,
+                   args.network, args.scheme, args.regularization), len(reg_list))
+        df_sigmoid.to_csv("dataframes/df_{}_{}_{}_{}_v2.csv".format(args.data,
+                     args.network, args.scheme, args.regularization), index=False)
+
 
     # Generate alignment plot for autograd linear network and lr data with dropout
     if args.data == 'lr' and args.network == 'non' and args.scheme == 'autograd' and args.regularization == 'dropout':
