@@ -151,7 +151,7 @@ def get_autograd_align_df(n, d, p_list, reg_list, activation, synthetic_data, st
                             torch.norm(second_layer_weight)
                         align = align.cpu().data.detach().numpy().flatten()
                         print(t, loss.item(), align)
-                        if np.abs(align - align_record) < 0.01:
+                        if np.abs(align - align_record) < 0.001:
                             continue_flag = False
                         align_record = align
                     optimizer_fa.zero_grad()
