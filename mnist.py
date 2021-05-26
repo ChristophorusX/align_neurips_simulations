@@ -303,7 +303,7 @@ if __name__ == '__main__':
     lr = 1e-2
     n_epochs = 300
     batch_size = 600
-    n_layers = 3
+    n_layers = 2
     reg_levels = [0, 0.1, 0.3]
     align_df, performance_df = get_mnist_align_df(
         n_epochs, n_hidden, lr, batch_size, reg_levels, n_layers=n_layers)
