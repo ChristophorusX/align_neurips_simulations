@@ -191,7 +191,7 @@ def get_network_with_reg(torch_net_fa, n_hidden, reg):
     return torch_net_fa_reg
 
 
-def get_mnist_align_df(n_epochs, n_hidden, lr, reg_levels, n_layers=3):
+def get_mnist_align_df(n_epochs, n_hidden, lr, batch_size, reg_levels, n_layers=3):
     print("Preparing datasets...")
     transform = transforms.Compose(
         [transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,))])
@@ -223,7 +223,7 @@ def get_mnist_align_df(n_epochs, n_hidden, lr, reg_levels, n_layers=3):
         loss_array = []
         accuracy_array = []
         train_epoch_fa(torch_net_fa, mnist_trainset, mnist_testset, n_epochs, lr,
-                       align_array, loss_array, accuracy_array)
+                       batch_size, align_array, loss_array, accuracy_array)
         align_array = np.array(align_array)
         align_array
         reg_index = np.repeat(reg, align_array.shape[0])
