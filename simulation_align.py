@@ -153,7 +153,6 @@ def get_autograd_align_df(n, d, p_list, reg_list, activation, synthetic_data, st
                         print(t, loss.item(), align)
                         if np.abs(loss.item() - loss_record) < 0.1:
                             continue_flag = False
-                            print("Break out of loop...")
                         loss_record = loss.item()
                     optimizer_fa.zero_grad()
                     loss.backward()
