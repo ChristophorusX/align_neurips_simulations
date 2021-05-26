@@ -121,7 +121,7 @@ def train_epoch_fa(torch_net_fa, mnist_trainset, mnist_testset, n_epochs, lr, ba
     reg_cnt = 0
     for epo in range(n_epochs):
         train_loader = torch.utils.data.DataLoader(mnist_trainset, batch_size=batch_size, shuffle=True)
-        test_loader = torch.utils.data.DataLoader(mnist_testset)
+        test_loader = torch.utils.data.DataLoader(mnist_testset, batch_size=500)
         optimizer_fa = torch.optim.SGD(torch_net_fa.parameters(), lr=lr)
         for batch_idx, (data, target) in enumerate(train_loader):
             # torch_net_fa.train()
@@ -163,7 +163,7 @@ def train_epoch_fa(torch_net_fa, mnist_trainset, mnist_testset, n_epochs, lr, ba
                 n_correct = 0
                 with torch.no_grad():
                     for data_test, target_test in test_loader:
-                        data_test = data_test.flatten().unsqueeze(0).to(device)
+                        data_test = data_test.flatten(start_dim=1).to(device)
                         target_test = target_test.to(device)
                         output_test = torch_net_fa(data_test)
                         test_loss += F.nll_loss(output_test,
