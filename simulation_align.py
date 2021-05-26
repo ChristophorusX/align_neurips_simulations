@@ -107,8 +107,11 @@ def get_autograd_align_df(n, d, p_list, reg_list, activation, synthetic_data, st
                 if reg == 0:
                     reg_flag = False
                 else:
-                    reg_flag = True
-                for t in range(n_step):
+                    if reg_step == 0:
+                        reg_flag = False
+                    else:
+                        reg_flag = True
+                for t in range(np.rint(n_step * np.sqrt(p) // 10)):
                     if reg_flag is True and t >= reg_step - 1:
                         print("Stop regularization at step {}".format(t))
                         reg_flag = False
@@ -259,7 +262,7 @@ if __name__ == '__main__':
         n, d = (50, 150)
         step = 10e-4
         n_step = 5000
-        reg_step = 2000
+        reg_step = 0
         n_iter = 10
         # p_start = 5000
         # p_end = 10000
@@ -269,9 +272,9 @@ if __name__ == '__main__':
         reg_list = [0, 0.5, 1, 1.5]
         df_lr = get_autograd_align_df(
             n, d, p_list, reg_list, 'non', 'lr', step, n_step, reg_step, n_iter)
-        plot_align(df_lr, "outputs/align_{}_{}_{}_{}.pdf".format(args.data,
+        plot_align(df_lr, "outputs/align_{}_{}_{}_{}_v2.pdf".format(args.data,
                    args.network, args.scheme, args.regularization), len(reg_list))
-        df_lr.to_csv("dataframes/df_{}_{}_{}_{}.csv".format(args.data,
+        df_lr.to_csv("dataframes/df_{}_{}_{}_{}_v2.csv".format(args.data,
                      args.network, args.scheme, args.regularization), index=False)
 
     # Generate alignment plot for autograd relu network and nn data with dropout
