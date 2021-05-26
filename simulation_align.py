@@ -248,7 +248,7 @@ if __name__ == '__main__':
     if args.data == 'nn' and args.network == 'relu' and args.scheme == 'autograd' and args.regularization == 'l2':
         print("Generate alignment plot for autograd relu network and nn data")
         n, d = (50, 150)
-        step = 10e-4
+        step = 10e-3
         n_step = 5000
         reg_step = 0
         n_iter = 3
