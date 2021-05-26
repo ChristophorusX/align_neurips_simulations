@@ -122,12 +122,10 @@ def get_autograd_align_df(n, d, p_list, reg_list, activation, synthetic_data, st
                     else:
                         reg_flag = True
                 proportion_step = np.rint(n_step * np.sqrt(p) // np.rint(np.sqrt(p_list[0])))
-                if dropout:
-                    continue_flag = True
-                else:
-                    continue_flag = False
+                continue_flag = True
                 t = 0
                 align_record = 1
+                loss_record = 0
                 while t < proportion_step or continue_flag:
                     if reg_flag is True and t >= reg_step - 1:
                         print("Stop regularization at step {}".format(t))
@@ -151,9 +149,14 @@ def get_autograd_align_df(n, d, p_list, reg_list, activation, synthetic_data, st
                             torch.norm(second_layer_weight)
                         align = align.cpu().data.detach().numpy().flatten()
                         print(t, loss.item(), align)
-                        if np.abs(align - align_record) < 0.001:
-                            continue_flag = False
-                        align_record = align
+                        if dropout:
+                            if np.abs(align - align_record) < 0.0001:
+                                continue_flag = False
+                            align_record = align
+                        else:
+                            if np.abs(loss.item() - loss_record) < 0.001:
+                                continue_flag = False
+                            loss_record = loss.item()
                     optimizer_fa.zero_grad()
                     loss.backward()
                     optimizer_fa.step()
@@ -257,12 +260,12 @@ if __name__ == '__main__':
         # p_step = 100
         # p_list = np.arange(start=p_start, stop=p_end + p_step, step=p_step)
         p_list = [200, 400, 800, 1600, 3200, 6400, 12800]
-        reg_list = [0, 0.05, 0.1, 0.2]
+        reg_list = [0, 0.02, 0.05, 0.2]
         df_relu = get_autograd_align_df(
             n, d, p_list, reg_list, 'relu', 'nn', step, n_step, reg_step, n_iter)
-        plot_align(df_relu, "outputs/align_{}_{}_{}_{}_v3.pdf".format(args.data,
+        plot_align(df_relu, "outputs/align_{}_{}_{}_{}_v4.pdf".format(args.data,
                    args.network, args.scheme, args.regularization), len(reg_list))
-        df_relu.to_csv("dataframes/df_{}_{}_{}_{}_v3.csv".format(args.data,
+        df_relu.to_csv("dataframes/df_{}_{}_{}_{}_v4.csv".format(args.data,
                      args.network, args.scheme, args.regularization), index=False)
 
     # Generate alignment plot for autograd sigmoid network and nn data
@@ -281,9 +284,9 @@ if __name__ == '__main__':
         reg_list = [0, 0.001, 0.003, 0.01]
         df_sigmoid = get_autograd_align_df(
             n, d, p_list, reg_list, 'sigmoid', 'nn', step, n_step, reg_step, n_iter)
-        plot_align(df_sigmoid, "outputs/align_{}_{}_{}_{}_v3.pdf".format(args.data,
+        plot_align(df_sigmoid, "outputs/align_{}_{}_{}_{}_v4.pdf".format(args.data,
                    args.network, args.scheme, args.regularization), len(reg_list))
-        df_sigmoid.to_csv("dataframes/df_{}_{}_{}_{}_v3.csv".format(args.data,
+        df_sigmoid.to_csv("dataframes/df_{}_{}_{}_{}_v4.csv".format(args.data,
                      args.network, args.scheme, args.regularization), index=False)
 
     # Generate alignment plot for autograd tanh network and nn data
@@ -302,9 +305,9 @@ if __name__ == '__main__':
         reg_list = [0, 0.001, 0.002, 0.005]
         df_sigmoid = get_autograd_align_df(
             n, d, p_list, reg_list, 'tanh', 'nn', step, n_step, reg_step, n_iter)
-        plot_align(df_sigmoid, "outputs/align_{}_{}_{}_{}_v3.pdf".format(args.data,
+        plot_align(df_sigmoid, "outputs/align_{}_{}_{}_{}_v4.pdf".format(args.data,
                    args.network, args.scheme, args.regularization), len(reg_list))
-        df_sigmoid.to_csv("dataframes/df_{}_{}_{}_{}_v3.csv".format(args.data,
+        df_sigmoid.to_csv("dataframes/df_{}_{}_{}_{}_v4.csv".format(args.data,
                      args.network, args.scheme, args.regularization), index=False)
 
     # Generate alignment plot for autograd linear network and lr data
@@ -323,9 +326,9 @@ if __name__ == '__main__':
         reg_list = [0, 0.2, 0.3, 0.5]
         df_lr = get_autograd_align_df(
             n, d, p_list, reg_list, 'non', 'lr', step, n_step, reg_step, n_iter)
-        plot_align(df_lr, "outputs/align_{}_{}_{}_{}_v3.pdf".format(args.data,
+        plot_align(df_lr, "outputs/align_{}_{}_{}_{}_v4.pdf".format(args.data,
                    args.network, args.scheme, args.regularization), len(reg_list))
-        df_lr.to_csv("dataframes/df_{}_{}_{}_{}_v3.csv".format(args.data,
+        df_lr.to_csv("dataframes/df_{}_{}_{}_{}_v4.csv".format(args.data,
                      args.network, args.scheme, args.regularization), index=False)
 
     # Generate alignment plot for autograd relu network and nn data with dropout
