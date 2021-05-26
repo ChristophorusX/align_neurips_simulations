@@ -112,7 +112,8 @@ def get_autograd_align_df(n, d, p_list, reg_list, activation, synthetic_data, st
                         reg_flag = False
                     else:
                         reg_flag = True
-                for t in np.arange(np.rint(n_step * np.sqrt(p) // 10)):
+                proportion_step = np.rint(n_step * np.sqrt(p) // np.rint(np.sqrt(p_list[0])))
+                for t in np.arange(proportion_step):
                     if reg_flag is True and t >= reg_step - 1:
                         print("Stop regularization at step {}".format(t))
                         reg_flag = False
