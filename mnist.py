@@ -110,8 +110,9 @@ def get_align_mnist(torch_net_fa):
         delta_bp = error_signal.mm(second_layer_weight)
         align_vec = 0
         for row in range(delta_fa.shape[0]):
-            align_vec += torch.dot(delta_fa[row], delta_bp[row]) / \
-                torch.norm(delta_fa[row]) / torch.norm(delta_bp[row])
+            if torch.norm(delta_fa[row]) != 0 and torch.norm(delta_bp[row]) != 0:
+                align_vec += torch.dot(delta_fa[row], delta_bp[row]) / \
+                    torch.norm(delta_fa[row]) / torch.norm(delta_bp[row])
         align_vec = align_vec / delta_fa.shape[0]
         align_vec = align_vec.cpu().data.detach().numpy().flatten()
         align_weight = torch.tensordot(backprop_weight, second_layer_weight) / \
