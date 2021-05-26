@@ -251,18 +251,18 @@ if __name__ == '__main__':
         step = 10e-3
         n_step = 5000
         reg_step = 0
-        n_iter = 3
+        n_iter = 10
         # p_start = 5000
         # p_end = 10000
         # p_step = 100
         # p_list = np.arange(start=p_start, stop=p_end + p_step, step=p_step)
-        p_list = [1600, 6400, 12800]
+        p_list = [200, 400, 800, 1600, 3200, 6400, 12800]
         reg_list = [0, 0.05, 0.1, 0.2]
         df_relu = get_autograd_align_df(
             n, d, p_list, reg_list, 'relu', 'nn', step, n_step, reg_step, n_iter)
-        plot_align(df_relu, "outputs/align_{}_{}_{}_{}_v2.pdf".format(args.data,
+        plot_align(df_relu, "outputs/align_{}_{}_{}_{}_v3.pdf".format(args.data,
                    args.network, args.scheme, args.regularization), len(reg_list))
-        df_relu.to_csv("dataframes/df_{}_{}_{}_{}_v2.csv".format(args.data,
+        df_relu.to_csv("dataframes/df_{}_{}_{}_{}_v3.csv".format(args.data,
                      args.network, args.scheme, args.regularization), index=False)
 
     # Generate alignment plot for autograd sigmoid network and nn data
@@ -272,7 +272,7 @@ if __name__ == '__main__':
         step = 10e-2
         n_step = 5000
         reg_step = 0
-        n_iter = 3
+        n_iter = 10
         # p_start = 5000
         # p_end = 6000
         # p_step = 1000
@@ -293,7 +293,7 @@ if __name__ == '__main__':
         step = 10e-2
         n_step = 5000
         reg_step = 0
-        n_iter = 3
+        n_iter = 10
         # p_start = 5000
         # p_end = 6000
         # p_step = 1000
@@ -314,7 +314,7 @@ if __name__ == '__main__':
         step = 10e-4
         n_step = 5000
         reg_step = 0
-        n_iter = 3
+        n_iter = 10
         # p_start = 5000
         # p_end = 10000
         # p_step = 1000
