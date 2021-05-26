@@ -111,7 +111,7 @@ def get_align_mnist(torch_net_fa):
         align_vec = 0
         for row in range(delta_fa.shape[0]):
             print(delta_fa[row])
-            align_vec += torch.tensordot(delta_fa[row], delta_bp[row]) / \
+            align_vec += torch.inner(delta_fa[row], delta_bp[row]) / \
                 torch.norm(delta_fa[row]) / torch.norm(delta_bp[row])
         align_vec = align_vec / delta_fa.shape[0]
         align_vec = align_vec.cpu().data.detach().numpy().flatten()
