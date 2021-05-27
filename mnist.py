@@ -338,5 +338,5 @@ if __name__ == '__main__':
     align_df
     performance_df = pd.concat(df_arr_performance)
     performance_df
-    plot_mnist(align_df, performance_df,
+    plot_mnist(align_df.loc[np.arange(align_df.index, step=10)], performance_df.loc[np.arange(performance_df.index, step=10)],
                "outputs/mnist_{}l_v6_horizontal.pdf".format(2), 3, 2)
