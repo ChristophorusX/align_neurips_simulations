@@ -1,4 +1,5 @@
 import torch
+import argparse
 import numpy as np
 import pandas as pd
 from torch import nn
@@ -299,6 +300,11 @@ def plot_mnist(align_df, performance_df, filename, n_category=4, n_layers=3):
 
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description="MNIST Simulations")
+    parser.add_argument('-j', '--jobnumber')
+    args = parser.parse_args()
+    print(args.jobnumber)
+
     n_hidden = 1000
     lr = 1e-2
     n_epochs = 300
@@ -308,11 +314,11 @@ if __name__ == '__main__':
     align_df, performance_df = get_mnist_align_df(
         n_epochs, n_hidden, lr, batch_size, reg_levels, n_layers=n_layers)
     align_df.to_csv(
-        "dataframes/df_mnist_align_{}l_v3.csv".format(n_layers), index=False)
+        "dataframes/df_mnist_align_{}l_v6_job{}.csv".format(n_layers, args.jobnumber), index=False)
     performance_df.to_csv(
-        "dataframes/df_mnist_performance_{}l_v3.csv".format(n_layers), index=False)
+        "dataframes/df_mnist_performance_{}l_v6_job{}.csv".format(n_layers, args.jobnumber), index=False)
     plot_mnist(align_df, performance_df,
-               "outputs/mnist_{}l_v3.pdf".format(n_layers), len(reg_levels), n_layers=n_layers)
+               "outputs/mnist_{}l_v6_job{}.pdf".format(n_layers, args.jobnumber), len(reg_levels), n_layers=n_layers)
 
     # align_df = pd.read_csv("dataframes/df_mnist_align_2l_v2.csv")
     # performance_df = pd.read_csv("dataframes/df_mnist_performance_2l_v2.csv")

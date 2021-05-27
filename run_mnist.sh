@@ -11,4 +11,4 @@
 module load miniconda
 conda activate alignment_env
 
-python mnist.py 
+python mnist.py --jobnumber ${SLURM_ARRAY_TASK_ID}
