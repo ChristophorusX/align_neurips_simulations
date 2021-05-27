@@ -233,7 +233,7 @@ if __name__ == '__main__':
         step = 10e-3
         n_step = 5000
         reg_step = 0
-        n_iter = 50
+        n_iter = 10
         p = 3200
         reg_list = [0, 0.02, 0.05, 0.2]
         df_relu = get_autograd_loss_df(
@@ -250,7 +250,7 @@ if __name__ == '__main__':
         step = 10e-2
         n_step = 5000
         reg_step = 0
-        n_iter = 50
+        n_iter = 10
         p = 3200
         reg_list = [0, 0.001, 0.003, 0.01]
         df_sigmoid = get_autograd_loss_df(
@@ -267,7 +267,7 @@ if __name__ == '__main__':
         step = 10e-2
         n_step = 5000
         reg_step = 0
-        n_iter = 50
+        n_iter = 10
         p = 3200
         reg_list = [0, 0.001, 0.002, 0.005]
         df_sigmoid = get_autograd_loss_df(
@@ -284,7 +284,7 @@ if __name__ == '__main__':
         step = 10e-4
         n_step = 5000
         reg_step = 0
-        n_iter = 50
+        n_iter = 10
         p = 3200
         reg_list = [0, 0.2, 0.3, 0.5]
         df_lr = get_autograd_loss_df(
