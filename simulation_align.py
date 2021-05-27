@@ -433,6 +433,6 @@ if __name__ == '__main__':
     df_relu = pd.read_csv("dataframes/df_nn_relu_autograd_l2_v6.csv")
     df_tanh = pd.read_csv("dataframes/df_nn_tanh_autograd_l2_v6.csv")
     df_tanh
-    plot_align(df_lr, "outputs/df_lr_non_autograd_l2_v6.pdf", 4)
+    plot_align(df_lr, "outputs/df_lr_non_autograd_l2_v6.pdf", 4, manual_legend=True)
     plot_align(df_relu, "outputs/df_nn_relu_autograd_l2_v6.pdf", 4, manual_legend=True)
-    plot_align(df_tanh, "outputs/df_nn_tanh_autograd_l2_v6.pdf", 4)
+    plot_align(df_tanh, "outputs/df_nn_tanh_autograd_l2_v6.pdf", 4, manual_legend=True)

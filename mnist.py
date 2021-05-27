@@ -261,25 +261,26 @@ def plot_mnist(align_df, performance_df, filename, n_category=4, n_layers=3):
     custom_palette = sns.color_palette("CMRmap_r", n_category)
     sns.set(font_scale=1.1)
     if n_layers == 2:
-        fig = plt.figure(figsize=(18, 5))
-        ax1 = plt.subplot(131)
-        ax2 = plt.subplot(132)
-        ax3 = plt.subplot(133)
+        fig = plt.figure(figsize=(12, 5))
+        ax1 = plt.subplot(121)
+        # ax2 = plt.subplot(132)
+        ax3 = plt.subplot(122)
         sns.lineplot(x='Step', y='Second Layer Vec Alignment',
                      hue=r"Regularization $\lambda$", data=align_df, legend="full",
                      palette=custom_palette, ci='sd', ax=ax1, linestyle='-.')
-        sns.lineplot(x='Step', y='Second Layer Weight Alignment',
-                     hue=r"Regularization $\lambda$", data=align_df, legend="full",
-                     palette=custom_palette, ci='sd', ax=ax2, linestyle='-.')
+        # sns.lineplot(x='Step', y='Second Layer Weight Alignment',
+        #              hue=r"Regularization $\lambda$", data=align_df, legend="full",
+        #              palette=custom_palette, ci='sd', ax=ax2, linestyle='-.')
         sns.lineplot(x='Step', y='Accuracy',
                      hue=r"Regularization $\lambda$", data=performance_df, legend="full",
                      palette=custom_palette, ci='sd', ax=ax3, linestyle='-.')
-        ax1.set_xlabel('Step', fontsize=18)
-        ax1.set_ylabel(r"$\frac{\langle \delta_{\mathrm{FA}},\delta_{\mathrm{BP}}\rangle}{\|\delta_{\mathrm{FA}}\|\|\delta_{\mathrm{BP}}\|}$", fontsize=18)
-        ax2.set_xlabel('Step', fontsize=18)
-        ax2.set_ylabel(r"$\frac{\langle \beta,b\rangle}{\|\beta\|\|b\|}$", fontsize=18)
-        ax3.set_xlabel('Step', fontsize=18)
-        ax3.set_ylabel('Accuracy', fontsize=18)
+        ax1.set_xlabel('Step')
+        # ax1.set_ylabel(r"$\frac{\langle \delta_{\mathrm{FA}},\delta_{\mathrm{BP}}\rangle}{\|\delta_{\mathrm{FA}}\|\|\delta_{\mathrm{BP}}\|}$", fontsize=18)
+        ax1.set_ylabel('Alignment')
+        # ax2.set_xlabel('Step', fontsize=18)
+        # ax2.set_ylabel(r"$\frac{\langle \beta,b\rangle}{\|\beta\|\|b\|}$", fontsize=18)
+        ax3.set_xlabel('Step')
+        ax3.set_ylabel('Accuracy')
         fig.savefig(filename, bbox_inches='tight')
     else:
         fig = plt.figure(figsize=(8, 30))
