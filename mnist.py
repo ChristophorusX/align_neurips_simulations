@@ -259,6 +259,7 @@ def get_mnist_align_df(n_epochs, n_hidden, lr, batch_size, reg_levels, n_layers=
 
 def plot_mnist(align_df, performance_df, filename, n_category=4, n_layers=3):
     custom_palette = sns.color_palette("CMRmap_r", n_category)
+    sns.set(font_scale=1.1)
     if n_layers == 2:
         fig = plt.figure(figsize=(18, 5))
         ax1 = plt.subplot(131)
@@ -266,14 +267,20 @@ def plot_mnist(align_df, performance_df, filename, n_category=4, n_layers=3):
         ax3 = plt.subplot(133)
         sns.lineplot(x='Step', y='Second Layer Vec Alignment',
                      hue=r"Regularization $\lambda$", data=align_df, legend="full",
-                     palette=custom_palette, ax=ax1)
+                     palette=custom_palette, ci='sd', ax=ax1, linestyle='-.')
         sns.lineplot(x='Step', y='Second Layer Weight Alignment',
                      hue=r"Regularization $\lambda$", data=align_df, legend="full",
-                     palette=custom_palette, ax=ax2)
+                     palette=custom_palette, ci='sd', ax=ax2, linestyle='-.')
         sns.lineplot(x='Step', y='Accuracy',
                      hue=r"Regularization $\lambda$", data=performance_df, legend="full",
-                     palette=custom_palette, ax=ax3)
-        fig.savefig(filename)
+                     palette=custom_palette, ci='sd', ax=ax3, linestyle='-.')
+        ax1.set_xlabel('Step', fontsize=18)
+        ax1.set_ylabel(r"$\frac{\langle \delta_{\mathrm{FA}},\delta_{\mathrm{BP}}\rangle}{\|\delta_{\mathrm{FA}}\|\|\delta_{\mathrm{BP}}\|}$", fontsize=18)
+        ax2.set_xlabel('Step', fontsize=18)
+        ax2.set_ylabel(r"$\frac{\langle \beta,b\rangle}{\|\beta\|\|b\|}$", fontsize=18)
+        ax3.set_xlabel('Step', fontsize=18)
+        ax3.set_ylabel('Accuracy', fontsize=18)
+        fig.savefig(filename, bbox_inches='tight')
     else:
         fig = plt.figure(figsize=(8, 30))
         ax1 = plt.subplot(511)
@@ -283,20 +290,20 @@ def plot_mnist(align_df, performance_df, filename, n_category=4, n_layers=3):
         ax5 = plt.subplot(515)
         sns.lineplot(x='Step', y='Second Layer Vec Alignment',
                      hue=r"Regularization $\lambda$", data=align_df, legend="full",
-                     palette=custom_palette, ax=ax1)
+                     palette=custom_palette, ci='sd', ax=ax1)
         sns.lineplot(x='Step', y='Third Layer Vec Alignment',
                      hue=r"Regularization $\lambda$", data=align_df, legend="full",
-                     palette=custom_palette, ax=ax2)
+                     palette=custom_palette, ci='sd', ax=ax2)
         sns.lineplot(x='Step', y='Second Layer Weight Alignment',
                      hue=r"Regularization $\lambda$", data=align_df, legend="full",
-                     palette=custom_palette, ax=ax3)
+                     palette=custom_palette, ci='sd', ax=ax3)
         sns.lineplot(x='Step', y='Third Layer Weight Alignment',
                      hue=r"Regularization $\lambda$", data=align_df, legend="full",
-                     palette=custom_palette, ax=ax4)
+                     palette=custom_palette, ci='sd', ax=ax4)
         sns.lineplot(x='Step', y='Accuracy',
                      hue=r"Regularization $\lambda$", data=performance_df, legend="full",
-                     palette=custom_palette, ax=ax5)
-        fig.savefig(filename)
+                     palette=custom_palette, ci='sd', ax=ax5)
+        fig.savefig(filename, bbox_inches='tight')
 
 
 def load_df_arr(n_jobs):
@@ -335,8 +342,12 @@ if __name__ == '__main__':
     n_jobs = 10
     df_arr_align, df_arr_performance = load_df_arr(n_jobs)
     align_df = pd.concat(df_arr_align)
-    align_df
+    align_df.shape
+    align_df['Step'] = align_df['Step'] // 1000
     performance_df = pd.concat(df_arr_performance)
-    performance_df
-    plot_mnist(align_df.loc[np.arange(align_df.index, step=10)], performance_df.loc[np.arange(performance_df.index, step=10)],
+    performance_df.shape
+    performance_df['Step'] = performance_df['Step'] // 10
+    align_subsampling = np.arange(align_df.shape[0], step=100)
+    a_df = align_df.iloc[align_subsampling, :]
+    plot_mnist(a_df, performance_df,
                "outputs/mnist_{}l_v6_horizontal.pdf".format(2), 3, 2)
