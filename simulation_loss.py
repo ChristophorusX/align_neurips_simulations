@@ -110,7 +110,6 @@ def get_autograd_loss_df(n, d, p, reg_list, activation, synthetic_data, step, n_
     for reg in reg_list:
         loss_table = []
         for iter in range(n_iter):
-            loss_array = []
             if synthetic_data == 'lr':
                 X, y = data_gen.lr_data(n, d)
             elif synthetic_data == 'nn':
@@ -135,6 +134,7 @@ def get_autograd_loss_df(n, d, p, reg_list, activation, synthetic_data, step, n_
             t = 0
             align_record = 1
             loss_record = 0
+            loss_array = []
             while t < proportion_step or continue_flag:
                 if reg_flag is True and t >= reg_step - 1:
                     print("Stop regularization at step {}".format(t))
@@ -184,7 +184,7 @@ def get_autograd_loss_df(n, d, p, reg_list, activation, synthetic_data, step, n_
             loss_table.append(loss_array)
         loss_table = np.array(loss_table)
         flattened_table = loss_table.flatten()
-        step_index = np.repeat(np.arange(n_step), n_iter)
+        step_index = np.tile(np.arange(n_step), n_iter)
         reg_index = np.repeat(reg, n_step * n_iter)
         activation_index = np.repeat(activation, n_step * n_iter)
         combined_table = np.vstack(
