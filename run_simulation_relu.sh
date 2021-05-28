@@ -11,4 +11,4 @@
 module load miniconda
 conda activate alignment_env
 
-python simulation_align.py -d 'nn' -n 'relu' -s 'autograd' -r 'l2'
+python simulation_align.py -d 'nn' -n 'relu' -s 'autograd' -r 'l2' --jobnumber ${SLURM_ARRAY_TASK_ID}
