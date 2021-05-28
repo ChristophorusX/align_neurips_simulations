@@ -1,4 +1,3 @@
-# This is an adoption from pytorch tutorial
 import torch
 from torch import nn
 from torch.autograd import Variable

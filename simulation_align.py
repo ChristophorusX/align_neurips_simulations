@@ -107,7 +107,7 @@ def get_autograd_align_df(n, d, p_list, reg_list, activation, synthetic_data, st
                 if synthetic_data == 'lr':
                     X, y = data_gen.lr_data(n, d)
                 elif synthetic_data == 'nn':
-                    X, y = data_gen.rand_nn_data(n, d, 300, activation)
+                    X, y = data_gen.rand_nn_data(n, d, p, activation)
                 torch_net_fa = get_network(d, p, activation, reg, dropout)
                 torch_net_fa.to(device)
                 optimizer_fa = torch.optim.SGD(
