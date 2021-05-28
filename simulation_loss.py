@@ -200,7 +200,7 @@ def get_autograd_loss_df(n, d, p, reg_list, activation, synthetic_data, step, n_
     return df
 
 
-def plot_loss(df, filename, n_category=4, manual_legend=False):
+def plot_loss(df, filename, n_category=4, manual_legend=False, log_scale=False, upper_lim=False):
     custom_palette = sns.color_palette("CMRmap_r", n_category)
     sns.set(font_scale=1.1)
     fig, ax = plt.subplots(figsize=(5, 4.5))
@@ -208,7 +208,10 @@ def plot_loss(df, filename, n_category=4, manual_legend=False):
                               hue=r"Regularization $\lambda$",
                               ci='sd', data=df, legend="full",
                               palette=custom_palette, ax=ax, linestyle='--')
-    ax.set_yscale('log')
+    if upper_lim:
+        align_plot.set(ylim=(0, upper_lim))
+    if log_scale:
+        ax.set_yscale('log')
     if manual_legend:
         plt.legend(loc=(0.65, 0.1), title=r"Regularization $\lambda$")
     ax.set_xlabel('Step', fontsize=18)
@@ -293,3 +296,13 @@ if __name__ == '__main__':
                    args.network, args.scheme, args.regularization), len(reg_list))
         df_lr.to_csv("dataframes/df_loss_{}_{}_{}_{}_v1.csv".format(args.data,
                      args.network, args.scheme, args.regularization), index=False)
+
+
+    # Plot based on df
+    df_lr = pd.read_csv("dataframes/df_loss_lr_non_autograd_l2_v1.csv")
+    df_relu = pd.read_csv("dataframes/df_loss_nn_relu_autograd_l2_v1.csv")
+    df_tanh = pd.read_csv("dataframes/df_loss_nn_tanh_autograd_l2_v1.csv")
+    df_tanh
+    plot_loss(df_lr, "outputs/loss_lr_non_autograd_l2_v1.pdf", 4, log_scale=True, upper_lim=False)
+    plot_loss(df_relu, "outputs/loss_nn_relu_autograd_l2_v1.pdf", 4, log_scale=True, upper_lim=False)
+    plot_loss(df_tanh, "outputs/loss_nn_tanh_autograd_l2_v1.pdf", 4, log_scale=True, upper_lim=False)
