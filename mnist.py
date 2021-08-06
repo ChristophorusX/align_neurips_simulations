@@ -330,9 +330,9 @@ def load_df_arr(n_jobs):
     df_arr_performance = []
     df_arr_align = []
     for jobnumber in np.arange(n_jobs):
-        df_performance = pd.read_csv("dataframes/df_mnist_performance_2l_v6_job{}.csv".format(jobnumber))
+        df_performance = pd.read_csv("dataframes/df_mnist_performance_2l_v7_job{}.csv".format(jobnumber))
         df_arr_performance.append(df_performance)
-        df_align = pd.read_csv("dataframes/df_mnist_align_2l_v6_job{}.csv".format(jobnumber))
+        df_align = pd.read_csv("dataframes/df_mnist_align_2l_v7_job{}.csv".format(jobnumber))
         df_arr_align.append(df_align)
     return df_arr_align, df_arr_performance
 
@@ -359,15 +359,15 @@ if __name__ == '__main__':
                "outputs/mnist_{}l_v7_job{}.pdf".format(n_layers, args.jobnumber), len(reg_levels), n_layers=n_layers)
 
     # # Load df and redraw the figures
-    # n_jobs = 10
-    # df_arr_align, df_arr_performance = load_df_arr(n_jobs)
-    # align_df = pd.concat(df_arr_align)
-    # align_df.shape
-    # align_df['Step'] = align_df['Step'] // 1000
-    # performance_df = pd.concat(df_arr_performance)
-    # performance_df.shape
-    # performance_df['Step'] = performance_df['Step'] // 10
-    # align_subsampling = np.arange(align_df.shape[0], step=100)
-    # a_df = align_df.iloc[align_subsampling, :]
-    # plot_mnist(a_df, performance_df,
-    #            "outputs/mnist_{}l_v6_horizontal.pdf".format(2), 3, 2)
+    n_jobs = 1 #10
+    df_arr_align, df_arr_performance = load_df_arr(n_jobs)
+    align_df = pd.concat(df_arr_align)
+    align_df.shape
+    align_df['Step'] = align_df['Step'] // 1000
+    performance_df = pd.concat(df_arr_performance)
+    performance_df.shape
+    performance_df['Step'] = performance_df['Step'] // 10
+    align_subsampling = np.arange(align_df.shape[0], step=100)
+    a_df = align_df.iloc[align_subsampling, :]
+    plot_mnist(a_df, performance_df,
+               "outputs/mnist_{}l_v7_horizontal.pdf".format(2), 3, 2)
