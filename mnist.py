@@ -286,7 +286,7 @@ def plot_mnist(align_df, performance_df, filename, n_category=4, n_layers=3):
                      palette=custom_palette, ci='sd', ax=ax1, linestyle='-.')
         sns.lineplot(x='Step', y='Disentangled Alignment',
                      hue=r"Regularization $\lambda$", data=align_df, legend="full",
-                     palette=custom_palette, ci='sd', ax=ax1, linestyle='.')
+                     palette=custom_palette, ci='sd', ax=ax1, linestyle=':')
         # sns.lineplot(x='Step', y='Second Layer Weight Alignment',
         #              hue=r"Regularization $\lambda$", data=align_df, legend="full",
         #              palette=custom_palette, ci='sd', ax=ax2, linestyle='-.')
