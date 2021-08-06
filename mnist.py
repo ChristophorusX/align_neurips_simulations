@@ -65,7 +65,7 @@ class MNISTThreeLayerFeedbackAlignmentNetworkReLU(nn.Module):
         return F.log_softmax(self.prediction, dim=1)
 
 
-def get_align_mnist(torch_net_fa, t: int, init_second_layer_weight, lr):
+def get_align_mnist(torch_net_fa, t: int, init_second_layer_weight, lr, reg):
     is_three_layer = False
     for name, param in torch_net_fa.named_parameters():
         if name == 'third_layer.backprop_weight':
@@ -121,14 +121,15 @@ def get_align_mnist(torch_net_fa, t: int, init_second_layer_weight, lr):
         align_vec = align_vec / delta_fa.shape[0]
         align_vec = align_vec.cpu().data.detach().numpy().flatten()
         align_disentangled = 0
-        for row in range(delta_disentangled.shape[0]):
-            norm_disentangled = torch.norm(delta_disentangled[row])
-            norm_bp = torch.norm(delta_bp[row])
-            if norm_disentangled != 0 and norm_bp != 0:
-                align_disentangled += torch.dot(delta_disentangled[row], delta_bp[row]) / \
-                    norm_disentangled / norm_bp
-        align_disentangled = align_disentangled / delta_disentangled.shape[0]
-        align_disentangled = align_disentangled.cpu().data.detach().numpy().flatten()
+        if reg == 0:
+            for row in range(delta_disentangled.shape[0]):
+                norm_disentangled = torch.norm(delta_disentangled[row])
+                norm_bp = torch.norm(delta_bp[row])
+                if norm_disentangled != 0 and norm_bp != 0:
+                    align_disentangled += torch.dot(delta_disentangled[row], delta_bp[row]) / \
+                        norm_disentangled / norm_bp
+            align_disentangled = align_disentangled / delta_disentangled.shape[0]
+            align_disentangled = align_disentangled.cpu().data.detach().numpy().flatten()
         align_weight = torch.tensordot(backprop_weight, second_layer_weight) / \
             torch.norm(backprop_weight) / torch.norm(second_layer_weight)
         align_weight = align_weight.cpu().data.detach().numpy().flatten()
@@ -159,7 +160,7 @@ def train_epoch_fa(torch_net_fa, mnist_trainset, mnist_testset, n_epochs, lr, ba
                         if name == 'third_layer.regularization':
                             # param.data.copy_(reg * torch.ones_like(param.data))
                             param.data.copy_(0.9999999999999 * param.data)
-                else: # cutoff reg
+                elif reg_type == 'cutoff': # cutoff reg
                     if reg_cnt == reg_type:
                         print("Reached regularization cutoff...")
                         for name, param in torch_net_fa.named_parameters():
@@ -176,7 +177,7 @@ def train_epoch_fa(torch_net_fa, mnist_trainset, mnist_testset, n_epochs, lr, ba
                     torch_net_fa.hidden2.retain_grad()
             loss.backward()
             optimizer_fa.step()
-            align = get_align_mnist(torch_net_fa, t, init_second_layer_weight, lr)
+            align = get_align_mnist(torch_net_fa, t, init_second_layer_weight, lr, reg)
             align_array.append(align)
             reg_cnt = reg_cnt + 1
             if batch_idx % 100 == 99:
@@ -246,7 +247,7 @@ def get_mnist_align_df(n_epochs, n_hidden, lr, batch_size, reg_levels, n_layers=
         loss_array = []
         accuracy_array = []
         train_epoch_fa(torch_net_fa, mnist_trainset, mnist_testset, n_epochs, lr,
-                       batch_size, align_array, loss_array, accuracy_array)
+                       batch_size, align_array, loss_array, accuracy_array, reg)
         align_array = np.array(align_array)
         align_array
         reg_index = np.repeat(reg, align_array.shape[0])
