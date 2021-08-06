@@ -131,7 +131,7 @@ def get_align_mnist(torch_net_fa, t: int, init_second_layer_weight, lr, reg):
             align_disentangled = align_disentangled / delta_disentangled.shape[0]
             align_disentangled = align_disentangled.cpu().data.detach().numpy().flatten()
         else:
-            align_disentangled = 0
+            align_disentangled = np.array([0])
         align_weight = torch.tensordot(backprop_weight, second_layer_weight) / \
             torch.norm(backprop_weight) / torch.norm(second_layer_weight)
         align_weight = align_weight.cpu().data.detach().numpy().flatten()
