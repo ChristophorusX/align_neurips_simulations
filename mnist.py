@@ -350,7 +350,7 @@ if __name__ == '__main__':
     
     n_hidden = 1000
     lr = 1e-2
-    n_epochs = 1 #300
+    n_epochs = 10 #300
     batch_size = 600
     n_layers = 2
     reg_levels = [0, 0.1, 0.3]
