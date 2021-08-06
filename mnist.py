@@ -140,7 +140,7 @@ def train_epoch_fa(torch_net_fa, mnist_trainset, mnist_testset, n_epochs, lr, ba
     t = 0
     for name, param in torch_net_fa.named_parameters():
         if name == 'second_layer.weight':
-            init_second_layer_weight = param.data
+            init_second_layer_weight = param.data.copy_
     for epo in range(n_epochs):
         train_loader = torch.utils.data.DataLoader(mnist_trainset, batch_size=batch_size, shuffle=True)
         test_loader = torch.utils.data.DataLoader(mnist_testset, batch_size=500)
@@ -345,7 +345,7 @@ if __name__ == '__main__':
     
     n_hidden = 1000
     lr = 1e-2
-    n_epochs = 10 #300
+    n_epochs = 1 #300
     batch_size = 600
     n_layers = 2
     reg_levels = [0, 0.1, 0.3]
