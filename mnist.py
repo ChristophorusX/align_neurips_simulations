@@ -124,10 +124,10 @@ def get_align_mnist(torch_net_fa, t: int, init_second_layer_weight, lr, reg):
         if reg == 0:
             for row in range(delta_disentangled.shape[0]):
                 norm_disentangled = torch.norm(delta_disentangled[row])
-                norm_bp = torch.norm(delta_bp[row])
-                if norm_disentangled != 0 and norm_bp != 0:
-                    align_disentangled += torch.dot(delta_disentangled[row], delta_bp[row]) / \
-                        norm_disentangled / norm_bp
+                norm_fa = torch.norm(delta_fa[row])
+                if norm_disentangled != 0 and norm_fa != 0:
+                    align_disentangled += torch.dot(delta_disentangled[row], delta_fa[row]) / \
+                        norm_disentangled / norm_fa
             align_disentangled = align_disentangled / delta_disentangled.shape[0]
             align_disentangled = align_disentangled.cpu().data.detach().numpy().flatten()
         else:
