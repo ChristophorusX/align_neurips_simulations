@@ -284,6 +284,8 @@ def get_mnist_align_df(n_epochs, n_hidden, lr, batch_size, reg_levels, n_layers=
         reg_align_df.append(align_df)
         accuracy_array = np.array(accuracy_array)
         loss_array = np.array(loss_array)
+        print(loss_array.shape)
+        print(accuracy_array.shape)
         reg_index = np.repeat(reg, accuracy_array.shape[0])
         step_index = np.arange(accuracy_array.shape[0]) * 1000
         performance_table = np.vstack(
