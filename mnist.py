@@ -286,7 +286,7 @@ def plot_mnist(align_df, performance_df, filename, n_category=4, n_layers=3):
                      palette=custom_palette, ci='sd', ax=ax1, linestyle='-.')
         sns.lineplot(x='Step', y='Disentangled Alignment',
                      hue=r"Regularization $\lambda$", data=align_df, legend="full",
-                     palette=custom_palette, ci='sd', ax=ax1, linestyle='-.')
+                     palette=custom_palette, ci='sd', ax=ax1, linestyle='.')
         # sns.lineplot(x='Step', y='Second Layer Weight Alignment',
         #              hue=r"Regularization $\lambda$", data=align_df, legend="full",
         #              palette=custom_palette, ci='sd', ax=ax2, linestyle='-.')
@@ -338,36 +338,36 @@ def load_df_arr(n_jobs):
 
 
 if __name__ == '__main__':
-    # parser = argparse.ArgumentParser(description="MNIST Simulations")
-    # parser.add_argument('-j', '--jobnumber')
-    # args = parser.parse_args()
-    # print(args.jobnumber)
+    parser = argparse.ArgumentParser(description="MNIST Simulations")
+    parser.add_argument('-j', '--jobnumber')
+    args = parser.parse_args()
+    print(args.jobnumber)
     
-    # n_hidden = 1000
-    # lr = 1e-2
-    # n_epochs = 1 #300
-    # batch_size = 600
-    # n_layers = 2
-    # reg_levels = [0, 0.1, 0.3]
-    # align_df, performance_df = get_mnist_align_df(
-    #     n_epochs, n_hidden, lr, batch_size, reg_levels, n_layers=n_layers)
-    # align_df.to_csv(
-    #     "dataframes/df_mnist_align_{}l_v7_job{}.csv".format(n_layers, args.jobnumber), index=False)
-    # performance_df.to_csv(
-    #     "dataframes/df_mnist_performance_{}l_v7_job{}.csv".format(n_layers, args.jobnumber), index=False)
-    # plot_mnist(align_df, performance_df,
-    #            "outputs/mnist_{}l_v7_job{}.pdf".format(n_layers, args.jobnumber), len(reg_levels), n_layers=n_layers)
+    n_hidden = 1000
+    lr = 1e-2
+    n_epochs = 10 #300
+    batch_size = 600
+    n_layers = 2
+    reg_levels = [0, 0.1, 0.3]
+    align_df, performance_df = get_mnist_align_df(
+        n_epochs, n_hidden, lr, batch_size, reg_levels, n_layers=n_layers)
+    align_df.to_csv(
+        "dataframes/df_mnist_align_{}l_v7_job{}.csv".format(n_layers, args.jobnumber), index=False)
+    performance_df.to_csv(
+        "dataframes/df_mnist_performance_{}l_v7_job{}.csv".format(n_layers, args.jobnumber), index=False)
+    plot_mnist(align_df, performance_df,
+               "outputs/mnist_{}l_v7_job{}.pdf".format(n_layers, args.jobnumber), len(reg_levels), n_layers=n_layers)
 
     # # Load df and redraw the figures
-    n_jobs = 1 #10
-    df_arr_align, df_arr_performance = load_df_arr(n_jobs)
-    align_df = pd.concat(df_arr_align)
-    align_df.shape
-    align_df['Step'] = align_df['Step'] // 1000
-    performance_df = pd.concat(df_arr_performance)
-    performance_df.shape
-    performance_df['Step'] = performance_df['Step'] // 10
-    align_subsampling = np.arange(align_df.shape[0], step=100)
-    a_df = align_df.iloc[align_subsampling, :]
-    plot_mnist(a_df, performance_df,
-               "outputs/mnist_{}l_v7_horizontal.pdf".format(2), 3, 2)
+    # n_jobs = 1 #10
+    # df_arr_align, df_arr_performance = load_df_arr(n_jobs)
+    # align_df = pd.concat(df_arr_align)
+    # align_df.shape
+    # align_df['Step'] = align_df['Step'] // 1000
+    # performance_df = pd.concat(df_arr_performance)
+    # performance_df.shape
+    # performance_df['Step'] = performance_df['Step'] // 10
+    # align_subsampling = np.arange(align_df.shape[0], step=100)
+    # a_df = align_df.iloc[align_subsampling, :]
+    # plot_mnist(a_df, performance_df,
+    #            "outputs/mnist_{}l_v7_horizontal.pdf".format(2), 3, 2)
