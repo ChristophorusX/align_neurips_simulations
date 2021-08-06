@@ -273,7 +273,7 @@ def get_mnist_align_df(n_epochs, n_hidden, lr, batch_size, reg_levels, n_layers=
         align_array = np.array(align_array)
         align_array
         reg_index = np.repeat(reg, align_array.shape[0])
-        step_index = np.arange(align_array.shape[0]) * 1000
+        step_index = np.arange(align_array.shape[0]) * 100
         combined_table = np.vstack((align_array.T, reg_index, step_index)).T
         if n_layers == 2:
             align_df = pd.DataFrame(data=combined_table, columns=[
@@ -287,9 +287,9 @@ def get_mnist_align_df(n_epochs, n_hidden, lr, batch_size, reg_levels, n_layers=
         print(loss_array.shape)
         print(accuracy_array.shape)
         reg_index = np.repeat(reg, accuracy_array.shape[0])
-        step_index = np.arange(accuracy_array.shape[0]) * 1000
+        step_index = np.arange(accuracy_array.shape[0]) * 100
         performance_table = np.vstack(
-            (loss_array, accuracy_array, reg_index, step_index)).T
+            (loss_array.T, accuracy_array.T, reg_index, step_index)).T
         performance_df = pd.DataFrame(data=performance_table, columns=[
                                       "Loss", "Disentangled Loss", "Accuracy", "Disentangled Accuracy", r"Regularization $\lambda$", "Step"])
         reg_performance_df.append(performance_df)
