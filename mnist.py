@@ -65,7 +65,7 @@ class MNISTThreeLayerFeedbackAlignmentNetworkReLU(nn.Module):
         return F.log_softmax(self.prediction, dim=1)
 
 
-def get_align_mnist(torch_net_fa):
+def get_align_mnist(torch_net_fa, t: int, init_second_layer_weight, lr):
     is_three_layer = False
     for name, param in torch_net_fa.named_parameters():
         if name == 'third_layer.backprop_weight':
@@ -106,8 +106,10 @@ def get_align_mnist(torch_net_fa):
                 backprop_weight = param.data
             if name == 'second_layer.weight':
                 second_layer_weight = param.data
+        disentangled_weight = second_layer_weight - init_second_layer_weight + (1-0.1*lr)**t * init_second_layer_weight
         error_signal = torch_net_fa.prediction.grad
         delta_fa = error_signal.mm(backprop_weight)
+        delta_disentangled = error_signal.mm(disentangled_weight)
         delta_bp = error_signal.mm(second_layer_weight)
         align_vec = 0
         for row in range(delta_fa.shape[0]):
@@ -118,20 +120,34 @@ def get_align_mnist(torch_net_fa):
                     norm_fa / norm_bp
         align_vec = align_vec / delta_fa.shape[0]
         align_vec = align_vec.cpu().data.detach().numpy().flatten()
+        align_disentangled = 0
+        for row in range(delta_disentangled.shape[0]):
+            norm_disentangled = torch.norm(delta_disentangled[row])
+            norm_bp = torch.norm(delta_bp[row])
+            if norm_disentangled != 0 and norm_bp != 0:
+                align_disentangled += torch.dot(delta_disentangled[row], delta_bp[row]) / \
+                    norm_disentangled / norm_bp
+        align_disentangled = align_disentangled / delta_disentangled.shape[0]
+        align_disentangled = align_disentangled.cpu().data.detach().numpy().flatten()
         align_weight = torch.tensordot(backprop_weight, second_layer_weight) / \
             torch.norm(backprop_weight) / torch.norm(second_layer_weight)
         align_weight = align_weight.cpu().data.detach().numpy().flatten()
-        return np.array([align_vec, align_weight]).flatten()
+        return np.array([align_vec, align_weight, align_disentangled]).flatten()
 
 
 def train_epoch_fa(torch_net_fa, mnist_trainset, mnist_testset, n_epochs, lr, batch_size, align_array, loss_array, accuracy_array, reg_type=None):
     reg_cnt = 0
+    t = 0
+    for name, param in torch_net_fa.named_parameters():
+        if name == 'second_layer.weight':
+            init_second_layer_weight = param.data
     for epo in range(n_epochs):
         train_loader = torch.utils.data.DataLoader(mnist_trainset, batch_size=batch_size, shuffle=True)
         test_loader = torch.utils.data.DataLoader(mnist_testset, batch_size=500)
         optimizer_fa = torch.optim.SGD(torch_net_fa.parameters(), lr=lr)
         for batch_idx, (data, target) in enumerate(train_loader):
             # torch_net_fa.train()
+            t += 1
             data = data.flatten(start_dim=1).to(device)
             target = target.to(device)
             if reg_type is not None:
@@ -160,7 +176,7 @@ def train_epoch_fa(torch_net_fa, mnist_trainset, mnist_testset, n_epochs, lr, ba
                     torch_net_fa.hidden2.retain_grad()
             loss.backward()
             optimizer_fa.step()
-            align = get_align_mnist(torch_net_fa)
+            align = get_align_mnist(torch_net_fa, t, init_second_layer_weight, lr)
             align_array.append(align)
             reg_cnt = reg_cnt + 1
             if batch_idx % 100 == 99:
@@ -238,7 +254,7 @@ def get_mnist_align_df(n_epochs, n_hidden, lr, batch_size, reg_levels, n_layers=
         combined_table = np.vstack((align_array.T, reg_index, step_index)).T
         if n_layers == 2:
             align_df = pd.DataFrame(data=combined_table, columns=[
-                                    "Second Layer Vec Alignment", "Second Layer Weight Alignment", r"Regularization $\lambda$", "Step"])
+                                    "Second Layer Vec Alignment", "Second Layer Weight Alignment", "Disentangled Alignment", r"Regularization $\lambda$", "Step"])
         else:
             align_df = pd.DataFrame(data=combined_table, columns=["Second Layer Vec Alignment", 'Third Layer Vec Alignment',
                                     "Second Layer Weight Alignment", 'Third Layer Weight Alignment', r"Regularization $\lambda$", "Step"])
@@ -266,6 +282,9 @@ def plot_mnist(align_df, performance_df, filename, n_category=4, n_layers=3):
         # ax2 = plt.subplot(132)
         ax3 = plt.subplot(122)
         sns.lineplot(x='Step', y='Second Layer Vec Alignment',
+                     hue=r"Regularization $\lambda$", data=align_df, legend="full",
+                     palette=custom_palette, ci='sd', ax=ax1, linestyle='-.')
+        sns.lineplot(x='Step', y='Disentangled Alignment',
                      hue=r"Regularization $\lambda$", data=align_df, legend="full",
                      palette=custom_palette, ci='sd', ax=ax1, linestyle='-.')
         # sns.lineplot(x='Step', y='Second Layer Weight Alignment',
@@ -319,36 +338,36 @@ def load_df_arr(n_jobs):
 
 
 if __name__ == '__main__':
-    # parser = argparse.ArgumentParser(description="MNIST Simulations")
-    # parser.add_argument('-j', '--jobnumber')
-    # args = parser.parse_args()
-    # print(args.jobnumber)
-    #
-    # n_hidden = 1000
-    # lr = 1e-2
-    # n_epochs = 300
-    # batch_size = 600
-    # n_layers = 2
-    # reg_levels = [0, 0.1, 0.3]
-    # align_df, performance_df = get_mnist_align_df(
-    #     n_epochs, n_hidden, lr, batch_size, reg_levels, n_layers=n_layers)
-    # align_df.to_csv(
-    #     "dataframes/df_mnist_align_{}l_v6_job{}.csv".format(n_layers, args.jobnumber), index=False)
-    # performance_df.to_csv(
-    #     "dataframes/df_mnist_performance_{}l_v6_job{}.csv".format(n_layers, args.jobnumber), index=False)
-    # plot_mnist(align_df, performance_df,
-    #            "outputs/mnist_{}l_v6_job{}.pdf".format(n_layers, args.jobnumber), len(reg_levels), n_layers=n_layers)
+    parser = argparse.ArgumentParser(description="MNIST Simulations")
+    parser.add_argument('-j', '--jobnumber')
+    args = parser.parse_args()
+    print(args.jobnumber)
+    
+    n_hidden = 1000
+    lr = 1e-2
+    n_epochs = 1 #300
+    batch_size = 600
+    n_layers = 2
+    reg_levels = [0, 0.1, 0.3]
+    align_df, performance_df = get_mnist_align_df(
+        n_epochs, n_hidden, lr, batch_size, reg_levels, n_layers=n_layers)
+    align_df.to_csv(
+        "dataframes/df_mnist_align_{}l_v7_job{}.csv".format(n_layers, args.jobnumber), index=False)
+    performance_df.to_csv(
+        "dataframes/df_mnist_performance_{}l_v7_job{}.csv".format(n_layers, args.jobnumber), index=False)
+    plot_mnist(align_df, performance_df,
+               "outputs/mnist_{}l_v7_job{}.pdf".format(n_layers, args.jobnumber), len(reg_levels), n_layers=n_layers)
 
-    # Load df and redraw the figures
-    n_jobs = 10
-    df_arr_align, df_arr_performance = load_df_arr(n_jobs)
-    align_df = pd.concat(df_arr_align)
-    align_df.shape
-    align_df['Step'] = align_df['Step'] // 1000
-    performance_df = pd.concat(df_arr_performance)
-    performance_df.shape
-    performance_df['Step'] = performance_df['Step'] // 10
-    align_subsampling = np.arange(align_df.shape[0], step=100)
-    a_df = align_df.iloc[align_subsampling, :]
-    plot_mnist(a_df, performance_df,
-               "outputs/mnist_{}l_v6_horizontal.pdf".format(2), 3, 2)
+    # # Load df and redraw the figures
+    # n_jobs = 10
+    # df_arr_align, df_arr_performance = load_df_arr(n_jobs)
+    # align_df = pd.concat(df_arr_align)
+    # align_df.shape
+    # align_df['Step'] = align_df['Step'] // 1000
+    # performance_df = pd.concat(df_arr_performance)
+    # performance_df.shape
+    # performance_df['Step'] = performance_df['Step'] // 10
+    # align_subsampling = np.arange(align_df.shape[0], step=100)
+    # a_df = align_df.iloc[align_subsampling, :]
+    # plot_mnist(a_df, performance_df,
+    #            "outputs/mnist_{}l_v6_horizontal.pdf".format(2), 3, 2)
