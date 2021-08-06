@@ -338,25 +338,25 @@ def load_df_arr(n_jobs):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description="MNIST Simulations")
-    parser.add_argument('-j', '--jobnumber')
-    args = parser.parse_args()
-    print(args.jobnumber)
+    # parser = argparse.ArgumentParser(description="MNIST Simulations")
+    # parser.add_argument('-j', '--jobnumber')
+    # args = parser.parse_args()
+    # print(args.jobnumber)
     
-    n_hidden = 1000
-    lr = 1e-2
-    n_epochs = 1 #300
-    batch_size = 600
-    n_layers = 2
-    reg_levels = [0, 0.1, 0.3]
-    align_df, performance_df = get_mnist_align_df(
-        n_epochs, n_hidden, lr, batch_size, reg_levels, n_layers=n_layers)
-    align_df.to_csv(
-        "dataframes/df_mnist_align_{}l_v7_job{}.csv".format(n_layers, args.jobnumber), index=False)
-    performance_df.to_csv(
-        "dataframes/df_mnist_performance_{}l_v7_job{}.csv".format(n_layers, args.jobnumber), index=False)
-    plot_mnist(align_df, performance_df,
-               "outputs/mnist_{}l_v7_job{}.pdf".format(n_layers, args.jobnumber), len(reg_levels), n_layers=n_layers)
+    # n_hidden = 1000
+    # lr = 1e-2
+    # n_epochs = 1 #300
+    # batch_size = 600
+    # n_layers = 2
+    # reg_levels = [0, 0.1, 0.3]
+    # align_df, performance_df = get_mnist_align_df(
+    #     n_epochs, n_hidden, lr, batch_size, reg_levels, n_layers=n_layers)
+    # align_df.to_csv(
+    #     "dataframes/df_mnist_align_{}l_v7_job{}.csv".format(n_layers, args.jobnumber), index=False)
+    # performance_df.to_csv(
+    #     "dataframes/df_mnist_performance_{}l_v7_job{}.csv".format(n_layers, args.jobnumber), index=False)
+    # plot_mnist(align_df, performance_df,
+    #            "outputs/mnist_{}l_v7_job{}.pdf".format(n_layers, args.jobnumber), len(reg_levels), n_layers=n_layers)
 
     # # Load df and redraw the figures
     n_jobs = 1 #10
