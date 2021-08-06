@@ -168,6 +168,8 @@ def train_epoch_fa(torch_net_fa, mnist_trainset, mnist_testset, n_epochs, lr, ba
                                 param.data.copy_(torch.zeros_like(param.data))
                             if name == 'third_layer.regularization':
                                 param.data.copy_(torch.zeros_like(param.data))
+                else:
+                    reg = reg_type
             optimizer_fa.zero_grad()
             output = torch_net_fa(data)
             loss = F.nll_loss(output, target)
