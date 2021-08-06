@@ -360,7 +360,7 @@ if __name__ == '__main__':
         "dataframes/df_mnist_align_{}l_v7_job{}.csv".format(n_layers, args.jobnumber), index=False)
     performance_df.to_csv(
         "dataframes/df_mnist_performance_{}l_v7_job{}.csv".format(n_layers, args.jobnumber), index=False)
-    plot_mnist(align_df, performance_df,
+    plot_mnist(align_df[::10], performance_df[::10],
                "outputs/mnist_{}l_v7_job{}.pdf".format(n_layers, args.jobnumber), len(reg_levels), n_layers=n_layers)
 
     # # Load df and redraw the figures
