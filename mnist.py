@@ -67,7 +67,7 @@ class MNISTThreeLayerFeedbackAlignmentNetworkReLU(nn.Module):
 
 class MNISTTwoLayerBackPropagationNetworkReLU(nn.Module):
     def __init__(self, hidden_features):
-        super(MNISTTwoLayerFeedbackAlignmentNetworkReLU, self).__init__()
+        super(MNISTTwoLayerBackPropagationNetworkReLU, self).__init__()
         self.input_features = 784
         self.hidden_features = hidden_features
 
