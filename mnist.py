@@ -65,6 +65,27 @@ class MNISTThreeLayerFeedbackAlignmentNetworkReLU(nn.Module):
         return F.log_softmax(self.prediction, dim=1)
 
 
+class MNISTTwoLayerBackPropagationNetworkReLU(nn.Module):
+    def __init__(self, hidden_features):
+        super(MNISTTwoLayerFeedbackAlignmentNetworkReLU, self).__init__()
+        self.input_features = 784
+        self.hidden_features = hidden_features
+
+        self.first_layer = nn.Linear(
+            self.input_features, self.hidden_features)
+        self.second_layer = nn.Linear(
+            self.hidden_features, 10)
+        self.prediction = Variable(
+            torch.FloatTensor(1, 10), requires_grad=True)
+
+    def forward(self, X):
+        hidden = F.relu(self.first_layer(X))
+        # self.prediction = self.second_layer(hidden) / np.sqrt(self.hidden_features)
+        self.prediction = self.second_layer(
+            hidden) / np.sqrt(self.hidden_features)
+        return F.log_softmax(self.prediction, dim=1)
+
+
 def get_align_mnist(torch_net_fa, t: int, init_second_layer_weight, lr, reg):
     is_three_layer = False
     for name, param in torch_net_fa.named_parameters():
@@ -106,7 +127,8 @@ def get_align_mnist(torch_net_fa, t: int, init_second_layer_weight, lr, reg):
                 backprop_weight = param.data
             if name == 'second_layer.weight':
                 second_layer_weight = param.data
-        disentangled_weight = second_layer_weight - init_second_layer_weight + (1-0.1*lr)**t * init_second_layer_weight
+        disentangled_weight = second_layer_weight - \
+            init_second_layer_weight + (1-0.1*lr)**t * init_second_layer_weight
         error_signal = torch_net_fa.prediction.grad
         delta_fa = error_signal.mm(backprop_weight)
         delta_disentangled = error_signal.mm(disentangled_weight)
@@ -142,8 +164,10 @@ def train_epoch_fa(torch_net_fa, mnist_trainset, mnist_testset, n_epochs, lr, ba
         if name == 'second_layer.weight':
             init_second_layer_weight = param.data.clone()
     for epo in range(n_epochs):
-        train_loader = torch.utils.data.DataLoader(mnist_trainset, batch_size=batch_size, shuffle=True)
-        test_loader = torch.utils.data.DataLoader(mnist_testset, batch_size=500)
+        train_loader = torch.utils.data.DataLoader(
+            mnist_trainset, batch_size=batch_size, shuffle=True)
+        test_loader = torch.utils.data.DataLoader(
+            mnist_testset, batch_size=500)
         optimizer_fa = torch.optim.SGD(torch_net_fa.parameters(), lr=lr)
         for batch_idx, (data, target) in enumerate(train_loader):
             # torch_net_fa.train()
@@ -159,7 +183,7 @@ def train_epoch_fa(torch_net_fa, mnist_trainset, mnist_testset, n_epochs, lr, ba
                         if name == 'third_layer.regularization':
                             # param.data.copy_(reg * torch.ones_like(param.data))
                             param.data.copy_(0.9999999999999 * param.data)
-                elif reg_type == 'cutoff': # cutoff reg
+                elif reg_type == 'cutoff':  # cutoff reg
                     if reg_cnt == reg_type:
                         print("Reached regularization cutoff...")
                         for name, param in torch_net_fa.named_parameters():
@@ -180,11 +204,13 @@ def train_epoch_fa(torch_net_fa, mnist_trainset, mnist_testset, n_epochs, lr, ba
             optimizer_fa.step()
             reg_cnt = reg_cnt + 1
             if batch_idx % 100 == 99:
-                align, disentangled_weight, second_layer_weight, backprop_weight = get_align_mnist(torch_net_fa, t, init_second_layer_weight, lr, reg)
+                align, disentangled_weight, second_layer_weight, backprop_weight = get_align_mnist(
+                    torch_net_fa, t, init_second_layer_weight, lr, reg)
                 align_array.append(align)
                 print(align)
                 weights_array.append(second_layer_weight.cpu().numpy())
-                disentangled_weights_array.append(disentangled_weight.cpu().numpy())
+                disentangled_weights_array.append(
+                    disentangled_weight.cpu().numpy())
                 backprop_weights_array.append(backprop_weight.cpu().numpy())
                 # torch_net_fa.eval()
                 test_loss = 0
@@ -213,7 +239,7 @@ def train_epoch_fa(torch_net_fa, mnist_trainset, mnist_testset, n_epochs, lr, ba
                         target_test = target_test.to(device)
                         output_test = torch_net_fa(data_test)
                         test_loss_disentangled += F.nll_loss(output_test,
-                                                target_test, reduction='sum').item()
+                                                             target_test, reduction='sum').item()
                         pred_test = output_test.argmax(dim=1, keepdim=True)
                         n_correct_disentangled += pred_test.eq(
                             target_test.view_as(pred_test)).sum().item()
@@ -221,10 +247,12 @@ def train_epoch_fa(torch_net_fa, mnist_trainset, mnist_testset, n_epochs, lr, ba
                     if name == 'second_layer.weight':
                         param.data.copy_(tmp)
                 test_loss_disentangled /= len(test_loader.dataset)
-                accuracy_disentangled = n_correct_disentangled / len(test_loader.dataset)
+                accuracy_disentangled = n_correct_disentangled / \
+                    len(test_loader.dataset)
                 loss_array.append([test_loss, test_loss_disentangled])
                 accuracy_array.append([accuracy, accuracy_disentangled])
-                print(batch_idx, test_loss, accuracy, test_loss_disentangled, accuracy_disentangled)
+                print(batch_idx, test_loss, accuracy,
+                      test_loss_disentangled, accuracy_disentangled)
 
 
 def get_network_with_reg(torch_net_fa, n_hidden, reg):
@@ -282,9 +310,12 @@ def get_mnist_align_df(n_epochs, n_hidden, lr, batch_size, reg_levels, n_layers=
         weights_array = np.array(weights_array)
         disentangled_weights_array = np.array(disentangled_weights_array)
         backprop_weights_array = np.array(backprop_weights_array)
-        np.save("arrays/weights_reg{}_job{}.npy".format(reg, jobnumber), weights_array)
-        np.save("arrays/disentangled_weights_reg{}_job{}.npy".format(reg, jobnumber), disentangled_weights_array)
-        np.save("arrays/backprop_weights_reg{}_job{}.npy".format(reg, jobnumber), backprop_weights_array)
+        np.save("arrays/weights_reg{}_job{}.npy".format(reg,
+                jobnumber), weights_array)
+        np.save("arrays/disentangled_weights_reg{}_job{}.npy".format(reg,
+                jobnumber), disentangled_weights_array)
+        np.save("arrays/backprop_weights_reg{}_job{}.npy".format(reg,
+                jobnumber), backprop_weights_array)
         reg_index = np.repeat(reg, align_array.shape[0])
         step_index = np.arange(align_array.shape[0]) * 100
         combined_table = np.vstack((align_array.T, reg_index, step_index)).T
@@ -371,11 +402,116 @@ def load_df_arr(n_jobs):
     df_arr_performance = []
     df_arr_align = []
     for jobnumber in np.arange(n_jobs):
-        df_performance = pd.read_csv("dataframes/df_mnist_performance_2l_v7_job{}.csv".format(jobnumber))
+        df_performance = pd.read_csv(
+            "dataframes/df_mnist_performance_2l_v7_job{}.csv".format(jobnumber))
         df_arr_performance.append(df_performance)
-        df_align = pd.read_csv("dataframes/df_mnist_align_2l_v7_job{}.csv".format(jobnumber))
+        df_align = pd.read_csv(
+            "dataframes/df_mnist_align_2l_v7_job{}.csv".format(jobnumber))
         df_arr_align.append(df_align)
     return df_arr_align, df_arr_performance
+
+
+def train_epoch_bp(torch_net_bp, mnist_trainset, mnist_testset, n_epochs, lr, batch_size, loss_array, accuracy_array, reg_type=None):
+    reg_cnt = 0
+    for epo in range(n_epochs):
+        train_loader = torch.utils.data.DataLoader(
+            mnist_trainset, batch_size=batch_size, shuffle=True)
+        test_loader = torch.utils.data.DataLoader(
+            mnist_testset, batch_size=500)
+        optimizer_fa = torch.optim.SGD(torch_net_bp.parameters(), lr=lr)
+        for batch_idx, (data, target) in enumerate(train_loader):
+            # torch_net_fa.train()
+            data = data.flatten(start_dim=1).to(device)
+            target = target.to(device)
+            reg = reg_type
+            optimizer_fa.zero_grad()
+            output = torch_net_bp(data)
+            for name, param in torch_net_bp.named_parameters():
+                print(name)
+                if name == 'second_layer.weight':
+                    second_layer_weight = param.data
+            loss = F.nll_loss(output, target) + reg * \
+                torch.norm(second_layer_weight)**2
+            torch_net_bp.prediction.retain_grad()
+            loss.backward()
+            optimizer_fa.step()
+            reg_cnt = reg_cnt + 1
+            if batch_idx % 100 == 99:
+                test_loss = 0
+                n_correct = 0
+                with torch.no_grad():
+                    for data_test, target_test in test_loader:
+                        data_test = data_test.flatten(start_dim=1).to(device)
+                        target_test = target_test.to(device)
+                        output_test = torch_net_bp(data_test)
+                        test_loss += F.nll_loss(output_test,
+                                                target_test, reduction='sum').item()
+                        pred_test = output_test.argmax(dim=1, keepdim=True)
+                        n_correct += pred_test.eq(
+                            target_test.view_as(pred_test)).sum().item()
+                test_loss /= len(test_loader.dataset)
+                accuracy = n_correct / len(test_loader.dataset)
+                loss_array.append(test_loss)
+                accuracy_array.append(accuracy)
+                print(batch_idx, test_loss, accuracy)
+
+
+def get_bp_df(n_epochs, n_hidden, lr, batch_size, reg_levels):
+    print("Preparing datasets...")
+    transform = transforms.Compose(
+        [transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,))])
+    mnist_trainset = datasets.MNIST(
+        root='./data', train=True, download=True, transform=transform)
+    mnist_testset = datasets.MNIST(
+        root='./data', train=False, download=True, transform=transform)
+    print("Preparing networks...")
+    net_list = []
+    print("Fitting two-layer networks...")
+    torch_net_bp0 = MNISTTwoLayerBackPropagationNetworkReLU(
+        n_hidden, 0).to(device)
+    for reg in reg_levels:
+        print("Generating network with reg level {}".format(reg))
+        torch_net_bp_reg = type(torch_net_bp0)(n_hidden, 0).to(device)
+        torch_net_bp_reg.load_state_dict(torch_net_bp0.state_dict())
+        net_list.append(torch_net_bp_reg)
+    print("Generating dataframes...")
+    reg_performance_df = []
+    zipped_list = zip(reg_levels, net_list)
+    for reg, torch_net_bp in zipped_list:
+        print("Working on regularization level {}".format(reg))
+        loss_array = []
+        accuracy_array = []
+        train_epoch_bp(torch_net_bp, mnist_trainset, mnist_testset, n_epochs, lr,
+                       batch_size, loss_array, accuracy_array, reg)
+        reg_index = np.repeat(reg, loss_array.shape[0])
+        step_index = np.arange(loss_array.shape[0]) * 100
+        accuracy_array = np.array(accuracy_array)
+        loss_array = np.array(loss_array)
+        reg_index = np.repeat(reg, accuracy_array.shape[0])
+        step_index = np.arange(accuracy_array.shape[0]) * 100
+        performance_table = np.vstack(
+            (loss_array.T, accuracy_array.T, reg_index, step_index)).T
+        performance_df = pd.DataFrame(data=performance_table, columns=[
+                                      "Loss", "Accuracy", r"Regularization $\lambda$", "Step"])
+        reg_performance_df.append(performance_df)
+    performance_df = pd.concat(reg_performance_df)
+    return performance_df
+
+
+def plot_bp(performance_df, filename, n_category=3):
+    custom_palette = sns.color_palette("CMRmap_r", n_category)
+    sns.set(font_scale=1.1)
+    fig = plt.figure(figsize=(12, 5))
+    ax1 = plt.subplot(111)
+    sns.lineplot(x='Step', y='Accuracy',
+                    hue=r"Regularization $\lambda$", data=performance_df, legend="full",
+                    palette=custom_palette, ci='sd', ax=ax1, linestyle='-.')
+    ax1.set_xlabel('Step')
+    # ax1.set_ylabel(r"$\frac{\langle \delta_{\mathrm{FA}},\delta_{\mathrm{BP}}\rangle}{\|\delta_{\mathrm{FA}}\|\|\delta_{\mathrm{BP}}\|}$", fontsize=18)
+    ax1.set_ylabel('Alignment')
+    # ax2.set_xlabel('Step', fontsize=18)
+    # ax2.set_ylabel(r"$\frac{\langle \beta,b\rangle}{\|\beta\|\|b\|}$", fontsize=18)
+    fig.savefig(filename, bbox_inches='tight')
 
 
 if __name__ == '__main__':
@@ -383,21 +519,21 @@ if __name__ == '__main__':
     parser.add_argument('-j', '--jobnumber')
     args = parser.parse_args()
     print(args.jobnumber)
-    
-    n_hidden = 1000
-    lr = 1e-2
-    n_epochs = 300
-    batch_size = 600
-    n_layers = 2
-    reg_levels = [0, 0.1, 0.3]
-    align_df, performance_df = get_mnist_align_df(
-        n_epochs, n_hidden, lr, batch_size, reg_levels, n_layers=n_layers, jobnumber=args.jobnumber)
-    align_df.to_csv(
-        "dataframes/df_mnist_align_{}l_v7_job{}.csv".format(n_layers, args.jobnumber), index=False)
-    performance_df.to_csv(
-        "dataframes/df_mnist_performance_{}l_v7_job{}.csv".format(n_layers, args.jobnumber), index=False)
-    plot_mnist(align_df, performance_df,
-               "outputs/mnist_{}l_v7_job{}.pdf".format(n_layers, args.jobnumber), len(reg_levels), n_layers=n_layers)
+
+    # n_hidden = 1000
+    # lr = 1e-2
+    # n_epochs = 300
+    # batch_size = 600
+    # n_layers = 2
+    # reg_levels = [0, 0.1, 0.3]
+    # align_df, performance_df = get_mnist_align_df(
+    #     n_epochs, n_hidden, lr, batch_size, reg_levels, n_layers=n_layers, jobnumber=args.jobnumber)
+    # align_df.to_csv(
+    #     "dataframes/df_mnist_align_{}l_v7_job{}.csv".format(n_layers, args.jobnumber), index=False)
+    # performance_df.to_csv(
+    #     "dataframes/df_mnist_performance_{}l_v7_job{}.csv".format(n_layers, args.jobnumber), index=False)
+    # plot_mnist(align_df, performance_df,
+    #            "outputs/mnist_{}l_v7_job{}.pdf".format(n_layers, args.jobnumber), len(reg_levels), n_layers=n_layers)
 
     # # Load df and redraw the figures
     # n_jobs = 1 #10
@@ -412,3 +548,17 @@ if __name__ == '__main__':
     # a_df = align_df.iloc[align_subsampling, :]
     # plot_mnist(a_df, performance_df,
     #            "outputs/mnist_{}l_v7_horizontal.pdf".format(2), 3, 2)
+
+    # Plot BP 
+    n_hidden = 1000
+    lr = 1e-2
+    n_epochs = 300
+    batch_size = 600
+    n_layers = 2
+    reg_levels = [0, 0.1, 0.3]
+    performance_df = get_bp_df(
+        n_epochs, n_hidden, lr, batch_size, reg_levels)
+    performance_df.to_csv(
+        "dataframes/df_bp_performance_{}l_job{}.csv".format(n_layers, args.jobnumber), index=False)
+    plot_mnist(align_df, performance_df,
+               "outputs/mnist_bp_{}l_job{}.pdf".format(n_layers, args.jobnumber), len(reg_levels), n_layers=n_layers) 
