@@ -427,7 +427,6 @@ def train_epoch_bp(torch_net_bp, mnist_trainset, mnist_testset, n_epochs, lr, ba
             optimizer_fa.zero_grad()
             output = torch_net_bp(data)
             for name, param in torch_net_bp.named_parameters():
-                print(name)
                 if name == 'second_layer.weight':
                     second_layer_weight = param.data
             loss = F.nll_loss(output, target) + reg * \
