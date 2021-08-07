@@ -183,9 +183,9 @@ def train_epoch_fa(torch_net_fa, mnist_trainset, mnist_testset, n_epochs, lr, ba
                 align, disentangled_weight, second_layer_weight, backprop_weight = get_align_mnist(torch_net_fa, t, init_second_layer_weight, lr, reg)
                 align_array.append(align)
                 print(align)
-                weights_array.append(second_layer_weight.numpy())
-                disentangled_weights_array.append(disentangled_weight.numpy())
-                backprop_weights_array.append(backprop_weight.numpy())
+                weights_array.append(second_layer_weight.cpu().numpy())
+                disentangled_weights_array.append(disentangled_weight.cpu().numpy())
+                backprop_weights_array.append(backprop_weight.cpu().numpy())
                 # torch_net_fa.eval()
                 test_loss = 0
                 n_correct = 0
