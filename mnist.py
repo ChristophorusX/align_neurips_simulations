@@ -551,7 +551,7 @@ if __name__ == '__main__':
     # Plot BP 
     n_hidden = 1000
     lr = 1e-2
-    n_epochs = 300
+    n_epochs = 3
     batch_size = 600
     n_layers = 2
     reg_levels = [0, 0.1, 0.3]
