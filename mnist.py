@@ -282,9 +282,9 @@ def get_mnist_align_df(n_epochs, n_hidden, lr, batch_size, reg_levels, n_layers=
         weights_array = np.array(weights_array)
         disentangled_weights_array = np.array(disentangled_weights_array)
         backprop_weights_array = np.array(backprop_weights_array)
-        np.save("weights_reg{}.npy".format(reg), weights_array)
-        np.save("disentangled_weights_reg{}.npy".format(reg), disentangled_weights_array)
-        np.save("backprop_weights_reg{}.npy".format(reg), backprop_weights_array)
+        np.save("arrays/weights_reg{}.npy".format(reg), weights_array)
+        np.save("arrays/disentangled_weights_reg{}.npy".format(reg), disentangled_weights_array)
+        np.save("arrays/backprop_weights_reg{}.npy".format(reg), backprop_weights_array)
         reg_index = np.repeat(reg, align_array.shape[0])
         step_index = np.arange(align_array.shape[0]) * 100
         combined_table = np.vstack((align_array.T, reg_index, step_index)).T
