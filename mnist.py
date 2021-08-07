@@ -317,8 +317,8 @@ def plot_mnist(align_df, performance_df, filename, n_category=4, n_layers=3):
         ax1 = plt.subplot(121)
         # ax2 = plt.subplot(132)
         ax3 = plt.subplot(122)
-        align_df_reg0 = align_df.loc[[align_df[r"Regularization $\lambda$"] == 0]]
-        performance_df_reg0 = performance_df.loc[[performance_df[r"Regularization $\lambda$"] == 0]]
+        align_df_reg0 = align_df.loc[align_df[r"Regularization $\lambda$"] == 0]
+        performance_df_reg0 = performance_df.loc[performance_df[r"Regularization $\lambda$"] == 0]
         sns.lineplot(x='Step', y='Second Layer Vec Alignment',
                      hue=r"Regularization $\lambda$", data=align_df, legend="full",
                      palette=custom_palette, ci='sd', ax=ax1, linestyle='-.')
