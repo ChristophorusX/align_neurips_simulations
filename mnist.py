@@ -132,10 +132,10 @@ def get_align_mnist(torch_net_fa, t: int, init_second_layer_weight, lr, reg):
         align_weight = torch.tensordot(backprop_weight, second_layer_weight) / \
             torch.norm(backprop_weight) / torch.norm(second_layer_weight)
         align_weight = align_weight.cpu().data.detach().numpy().flatten()
-        return np.array([align_vec, align_weight, align_disentangled]).flatten(), disentangled_weight
+        return np.array([align_vec, align_weight, align_disentangled]).flatten(), disentangled_weight, second_layer_weight, backprop_weight
 
 
-def train_epoch_fa(torch_net_fa, mnist_trainset, mnist_testset, n_epochs, lr, batch_size, align_array, loss_array, accuracy_array, reg_type=None):
+def train_epoch_fa(torch_net_fa, mnist_trainset, mnist_testset, n_epochs, lr, batch_size, align_array, loss_array, accuracy_array, weights_array, disentangled_weights_array, backprop_weights_array, reg_type=None):
     reg_cnt = 0
     t = 0
     for name, param in torch_net_fa.named_parameters():
@@ -180,9 +180,12 @@ def train_epoch_fa(torch_net_fa, mnist_trainset, mnist_testset, n_epochs, lr, ba
             optimizer_fa.step()
             reg_cnt = reg_cnt + 1
             if batch_idx % 100 == 99:
-                align, disentangled_weight = get_align_mnist(torch_net_fa, t, init_second_layer_weight, lr, reg)
+                align, disentangled_weight, second_layer_weight, backprop_weight = get_align_mnist(torch_net_fa, t, init_second_layer_weight, lr, reg)
                 align_array.append(align)
                 print(align)
+                weights_array.append(second_layer_weight.numpy())
+                disentangled_weight.append(disentangled_weight.numpy())
+                backprop_weights_array.append(backprop_weight.numpy())
                 # torch_net_fa.eval()
                 test_loss = 0
                 n_correct = 0
@@ -268,10 +271,20 @@ def get_mnist_align_df(n_epochs, n_hidden, lr, batch_size, reg_levels, n_layers=
         align_array = []
         loss_array = []
         accuracy_array = []
+        weights_array = []
+        disentangled_weights_array = []
+        backprop_weights_array = []
         train_epoch_fa(torch_net_fa, mnist_trainset, mnist_testset, n_epochs, lr,
-                       batch_size, align_array, loss_array, accuracy_array, reg)
+                       batch_size, align_array, loss_array, accuracy_array, weights_array,
+                       disentangled_weights_array, backprop_weights_array, reg)
         align_array = np.array(align_array)
         align_array
+        weights_array = np.array(weights_array)
+        disentangled_weights_array = np.array(disentangled_weights_array)
+        backprop_weights_array = np.array(backprop_weights_array)
+        np.save("weights_reg{}.npy".format(reg), weights_array)
+        np.save("disentangled_weights_reg{}.npy".format(reg), disentangled_weights_array)
+        np.save("backprop_weights_reg{}.npy".format(reg), backprop_weights_array)
         reg_index = np.repeat(reg, align_array.shape[0])
         step_index = np.arange(align_array.shape[0]) * 100
         combined_table = np.vstack((align_array.T, reg_index, step_index)).T
