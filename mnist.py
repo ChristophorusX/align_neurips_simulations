@@ -557,5 +557,5 @@ if __name__ == '__main__':
         n_epochs, n_hidden, lr, batch_size, reg_levels)
     performance_df.to_csv(
         "dataframes/df_bp_performance_{}l_job{}.csv".format(n_layers, args.jobnumber), index=False)
-    plot_mnist(align_df, performance_df,
+    plot_mnist(performance_df,
                "outputs/mnist_bp_{}l_job{}.pdf".format(n_layers, args.jobnumber), len(reg_levels), n_layers=n_layers) 
