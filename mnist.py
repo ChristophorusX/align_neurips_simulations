@@ -482,8 +482,6 @@ def get_bp_df(n_epochs, n_hidden, lr, batch_size, reg_levels):
         accuracy_array = []
         train_epoch_bp(torch_net_bp, mnist_trainset, mnist_testset, n_epochs, lr,
                        batch_size, loss_array, accuracy_array, reg)
-        reg_index = np.repeat(reg, loss_array.shape[0])
-        step_index = np.arange(loss_array.shape[0]) * 100
         accuracy_array = np.array(accuracy_array)
         loss_array = np.array(loss_array)
         reg_index = np.repeat(reg, accuracy_array.shape[0])
