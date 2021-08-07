@@ -468,10 +468,10 @@ def get_bp_df(n_epochs, n_hidden, lr, batch_size, reg_levels):
     net_list = []
     print("Fitting two-layer networks...")
     torch_net_bp0 = MNISTTwoLayerBackPropagationNetworkReLU(
-        n_hidden, 0).to(device)
+        n_hidden).to(device)
     for reg in reg_levels:
         print("Generating network with reg level {}".format(reg))
-        torch_net_bp_reg = type(torch_net_bp0)(n_hidden, 0).to(device)
+        torch_net_bp_reg = type(torch_net_bp0)(n_hidden).to(device)
         torch_net_bp_reg.load_state_dict(torch_net_bp0.state_dict())
         net_list.append(torch_net_bp_reg)
     print("Generating dataframes...")
