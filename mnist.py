@@ -558,4 +558,4 @@ if __name__ == '__main__':
     performance_df.to_csv(
         "dataframes/df_bp_performance_{}l_job{}.csv".format(n_layers, args.jobnumber), index=False)
     plot_bp(performance_df,
-               "outputs/mnist_bp_{}l_job{}.pdf".format(n_layers, args.jobnumber), len(reg_levels), n_layers=n_layers) 
+               "outputs/mnist_bp_{}l_job{}.pdf".format(n_layers, args.jobnumber), len(reg_levels)) 
