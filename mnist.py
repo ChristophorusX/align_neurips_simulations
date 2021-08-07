@@ -333,7 +333,7 @@ def plot_mnist(align_df, performance_df, filename, n_category=4, n_layers=3):
                      palette=custom_palette, ci='sd', ax=ax3, linestyle='-.')
         sns.lineplot(x='Step', y='Disentangled Accuracy',
                      data=performance_df_reg0, legend="full",
-                     ci='sd', ax=ax1, linestyle=':')
+                     ci='sd', ax=ax3, linestyle=':')
         ax1.set_xlabel('Step')
         # ax1.set_ylabel(r"$\frac{\langle \delta_{\mathrm{FA}},\delta_{\mathrm{BP}}\rangle}{\|\delta_{\mathrm{FA}}\|\|\delta_{\mathrm{BP}}\|}$", fontsize=18)
         ax1.set_ylabel('Alignment')
