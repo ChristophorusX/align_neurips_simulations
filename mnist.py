@@ -240,7 +240,7 @@ def get_network_with_reg(torch_net_fa, n_hidden, reg):
     return torch_net_fa_reg
 
 
-def get_mnist_align_df(n_epochs, n_hidden, lr, batch_size, reg_levels, n_layers=3):
+def get_mnist_align_df(n_epochs, n_hidden, lr, batch_size, reg_levels, n_layers=3, jobnumber=None):
     print("Preparing datasets...")
     transform = transforms.Compose(
         [transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,))])
@@ -282,9 +282,9 @@ def get_mnist_align_df(n_epochs, n_hidden, lr, batch_size, reg_levels, n_layers=
         weights_array = np.array(weights_array)
         disentangled_weights_array = np.array(disentangled_weights_array)
         backprop_weights_array = np.array(backprop_weights_array)
-        np.save("arrays/weights_reg{}.npy".format(reg), weights_array)
-        np.save("arrays/disentangled_weights_reg{}.npy".format(reg), disentangled_weights_array)
-        np.save("arrays/backprop_weights_reg{}.npy".format(reg), backprop_weights_array)
+        np.save("arrays/weights_reg{}_job{}.npy".format(reg, jobnumber), weights_array)
+        np.save("arrays/disentangled_weights_reg{}_job{}.npy".format(reg, jobnumber), disentangled_weights_array)
+        np.save("arrays/backprop_weights_reg{}_job{}.npy".format(reg, jobnumber), backprop_weights_array)
         reg_index = np.repeat(reg, align_array.shape[0])
         step_index = np.arange(align_array.shape[0]) * 100
         combined_table = np.vstack((align_array.T, reg_index, step_index)).T
@@ -391,7 +391,7 @@ if __name__ == '__main__':
     n_layers = 2
     reg_levels = [0, 0.1, 0.3]
     align_df, performance_df = get_mnist_align_df(
-        n_epochs, n_hidden, lr, batch_size, reg_levels, n_layers=n_layers)
+        n_epochs, n_hidden, lr, batch_size, reg_levels, n_layers=n_layers, jobnumber=args.jobnumber)
     align_df.to_csv(
         "dataframes/df_mnist_align_{}l_v7_job{}.csv".format(n_layers, args.jobnumber), index=False)
     performance_df.to_csv(
